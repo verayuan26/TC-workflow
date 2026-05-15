@@ -1,4 +1,4 @@
-import { X, ExternalLink, AlertTriangle, CheckCircle, RotateCcw, PauseCircle, Clock, TrendingUp, TrendingDown, DollarSign, MousePointer, MessageSquare, Bot, CheckCircle2, XCircle, Zap } from 'lucide-react';
+import { X, ExternalLink, AlertTriangle, CheckCircle, RotateCcw, PauseCircle, Clock, TrendingUp, TrendingDown, DollarSign, MousePointer, MessageSquare, Bot, CheckCircle2, XCircle, Zap, BarChart2, Activity } from 'lucide-react';
 import type { Task, AdStatus } from '../types';
 import { AD_STATUS_COLORS, PLATFORM_COLORS, RISK_LEVEL_STYLES, RISK_LEVEL_DOT } from '../types';
 import { StatusBadge, PriorityBadge } from './StatusBadge';
@@ -164,6 +164,74 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
                 <ResultFlag show={task.shouldPauseAd} label="建议暂停投放" color="bg-surface-700 text-surface-400 border-surface-600" />
                 {!task.shouldScale && !task.needsCopyChange && !task.needsVideoChange && !task.needsLpChange && !task.shouldPauseAd && (
                   <span className="text-xs text-surface-500">暂无结果判断</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 广告数据扩展指标 */}
+          {task.isAdTask && (task.views !== undefined || task.whatsappClicks !== undefined || task.formSubmits !== undefined || task.validInquiries !== undefined) && (
+            <div>
+              <h4 className="text-[10px] uppercase tracking-widest text-gold-500/70 font-semibold mb-3 flex items-center gap-2">
+                <span className="flex-1 h-px bg-gold-500/10" />
+                <Activity size={11} className="text-gold-500/70" />
+                深度效果指标
+                <span className="flex-1 h-px bg-gold-500/10" />
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-surface-800/50 rounded-lg border border-surface-700/50">
+                {[
+                  { label: '视频观看量', value: task.views?.toLocaleString() },
+                  { label: 'CPV', value: task.cpv !== undefined ? `$${task.cpv}` : undefined },
+                  { label: 'WhatsApp点击', value: task.whatsappClicks },
+                  { label: '表单提交', value: task.formSubmits },
+                  { label: '有效询盘', value: task.validInquiries },
+                  { label: '下一步动作', value: task.adNextAction },
+                ].filter((m) => m.value !== undefined && m.value !== null).map((m) => (
+                  <div key={m.label}>
+                    <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-0.5">{m.label}</p>
+                    <p className="text-sm font-bold text-surface-200">{String(m.value)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 广告复盘区 */}
+          {task.isAdTask && (task.adPerformanceSummary || task.adIssues || task.adRecommendations || task.veraAdDecision) && (
+            <div>
+              <h4 className="text-[10px] uppercase tracking-widest text-gold-500/70 font-semibold mb-3 flex items-center gap-2">
+                <span className="flex-1 h-px bg-gold-500/10" />
+                <BarChart2 size={11} className="text-gold-500/70" />
+                广告复盘分析
+                <span className="flex-1 h-px bg-gold-500/10" />
+              </h4>
+              <div className="space-y-3 p-3 bg-surface-800/50 border border-surface-700/50 rounded-lg">
+                {task.adPerformanceSummary && (
+                  <div>
+                    <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-1">数据表现</p>
+                    <p className="text-xs text-surface-300 leading-relaxed">{task.adPerformanceSummary}</p>
+                  </div>
+                )}
+                {task.adIssues && (
+                  <div>
+                    <p className="text-[9px] uppercase tracking-widest text-amber-500/70 mb-1">问题判断</p>
+                    <p className="text-xs text-amber-300/80 leading-relaxed">{task.adIssues}</p>
+                  </div>
+                )}
+                {task.adRecommendations && (
+                  <div>
+                    <p className="text-[9px] uppercase tracking-widest text-blue-500/70 mb-1">推荐动作</p>
+                    <p className="text-xs text-blue-300/80 leading-relaxed">{task.adRecommendations}</p>
+                  </div>
+                )}
+                {task.veraAdDecision && (
+                  <div className="pt-2 border-t border-surface-700/40">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-[9px] uppercase tracking-widest text-gold-500/70">Vera最终决定</p>
+                      {task.veraAdDecisionAt && <span className="text-[9px] text-surface-600 ml-auto">{task.veraAdDecisionAt}</span>}
+                    </div>
+                    <p className="text-xs text-gold-300 font-medium leading-relaxed">{task.veraAdDecision}</p>
+                  </div>
                 )}
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, Clock, Eye, Scissors, FileText, Link2, Send, CheckCircle2, DollarSign, MousePointer, MessageSquare, BarChart2, TrendingDown, XCircle, Bot, ShieldCheck, Zap } from 'lucide-react';
+import { AlertTriangle, Clock, Eye, Scissors, FileText, Link2, Send, CheckCircle2, DollarSign, MousePointer, MessageSquare, BarChart2, TrendingDown, TrendingUp, XCircle, Bot, ShieldCheck, Zap, PauseCircle, Activity, Users, CreditCard } from 'lucide-react';
 import type { Task, TaskStatus, Role, Website, RiskLevel } from '../types';
 import { WEBSITES, RISK_LEVEL_DOT } from '../types';
 import { TaskCard } from '../components/TaskCard';
@@ -152,7 +152,19 @@ export function Dashboard({ tasks }: DashboardProps) {
     const avgCpl = totalInquiries > 0 ? Math.round(totalSpent / totalInquiries) : 0;
     const needOptimize = adTasks.filter((t) => t.adStatus === '需优化');
     const pausedAds = adTasks.filter((t) => t.adStatus === '暂停');
-    const bestPageAd = adTasks.reduce((best, t) => ((t.inquiries || 0) > (best?.inquiries || 0) ? t : best), adTasks[0]);
+    const scaleAds = adTasks.filter((t) => t.adStatus === '放大候选');
+    const bestPageAd = adTasks.filter((t) => (t.validInquiries || t.inquiries || 0) > 0).reduce((best, t) => {
+      const a = t.validInquiries || t.inquiries || 0;
+      const b = best ? (best.validInquiries || best.inquiries || 0) : 0;
+      return a > b ? t : best;
+    }, null as Task | null);
+    const worstAd = adTasks.filter((t) => t.cpl && t.cpl > 0 && t.adStatus === '投放中').reduce((worst, t) => {
+      return (!worst || (t.cpl || 0) > (worst.cpl || 0)) ? t : worst;
+    }, null as Task | null);
+    const totalViews = adTasks.reduce((s, t) => s + (t.views || 0), 0);
+    const totalWA = adTasks.reduce((s, t) => s + (t.whatsappClicks || 0), 0);
+    const totalForms = adTasks.reduce((s, t) => s + (t.formSubmits || 0), 0);
+    const totalValidInquiries = adTasks.reduce((s, t) => s + (t.validInquiries || 0), 0);
 
     // Phase 4 automation metrics
     const autoApproved = tasks.filter((t) => t.autoApproved || t.status === '12_自动放行').length;
@@ -164,7 +176,7 @@ export function Dashboard({ tasks }: DashboardProps) {
     const riskDist: Record<RiskLevel, number> = { '低': 0, '中': 0, '高': 0 };
     tasks.forEach((t) => { if (t.riskLevel) riskDist[t.riskLevel]++; });
 
-    return { total, completed, overdue, blocked, inProgress, totalSpent, totalClicks, totalInquiries, avgCpl, needOptimize, pausedAds, bestPageAd, autoApproved, intercepted, veraPending, budgetPending, autoApproveRate, interceptRate, riskDist };
+    return { total, completed, overdue, blocked, inProgress, totalSpent, totalClicks, totalInquiries, avgCpl, needOptimize, pausedAds, scaleAds, bestPageAd, worstAd, totalViews, totalWA, totalForms, totalValidInquiries, autoApproved, intercepted, veraPending, budgetPending, autoApproveRate, interceptRate, riskDist };
   }, [tasks]);
 
   const roleStats = useMemo(() => ROLES.map(({ role }) => {
@@ -315,14 +327,16 @@ export function Dashboard({ tasks }: DashboardProps) {
         </div>
       </div>
 
-      {/* ── Ad Results ─────────────────────────────────────────────────── */}
+      {/* ── Ad Efficiency Module ─────────────────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest mb-3">广告投放概览</h2>
+        <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest mb-3">广告效率概览</h2>
+
+        {/* Primary metrics row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
           <div className="card p-3 border border-orange-500/20">
             <div className="flex items-center gap-1.5 mb-1">
               <DollarSign size={12} className="text-orange-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">本周广告花费</span>
+              <span className="text-[9px] uppercase tracking-widest text-surface-500">本周花费</span>
             </div>
             <p className="text-xl font-bold text-orange-400">${stats.totalSpent.toLocaleString()}</p>
           </div>
@@ -336,9 +350,9 @@ export function Dashboard({ tasks }: DashboardProps) {
           <div className="card p-3 border border-emerald-500/20">
             <div className="flex items-center gap-1.5 mb-1">
               <MessageSquare size={12} className="text-emerald-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">本周询盘</span>
+              <span className="text-[9px] uppercase tracking-widest text-surface-500">有效询盘</span>
             </div>
-            <p className="text-xl font-bold text-emerald-400">{stats.totalInquiries}</p>
+            <p className="text-xl font-bold text-emerald-400">{stats.totalValidInquiries || stats.totalInquiries}</p>
           </div>
           <div className="card p-3 border border-gold-500/20">
             <div className="flex items-center gap-1.5 mb-1">
@@ -349,35 +363,110 @@ export function Dashboard({ tasks }: DashboardProps) {
           </div>
         </div>
 
-        {/* Ad alerts */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {stats.bestPageAd && stats.bestPageAd.inquiries && stats.bestPageAd.inquiries > 0 && (
-            <div className="card p-3 border border-emerald-500/20">
-              <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-1">最佳广告</p>
-              <p className="text-xs text-emerald-300 font-medium">{stats.bestPageAd.adPlatform} · {stats.bestPageAd.website.replace('.com', '').replace('.ru', '')}</p>
-              <p className="text-[10px] text-surface-400">{stats.bestPageAd.inquiries} 询盘 · CPL ${stats.bestPageAd.cpl}</p>
+        {/* Secondary metrics row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+          <div className="card p-3 border border-cyan-500/20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Eye size={12} className="text-cyan-400" />
+              <span className="text-[9px] uppercase tracking-widest text-surface-500">视频观看量</span>
             </div>
-          )}
-          {stats.needOptimize.length > 0 && (
-            <div className="card p-3 border border-red-500/20">
-              <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-1">需优化广告</p>
-              {stats.needOptimize.map((t) => (
-                <p key={t.id} className="text-xs text-red-300">{t.adPlatform} · {t.website.replace('.com', '').replace('.ru', '')}</p>
-              ))}
+            <p className="text-xl font-bold text-cyan-400">{stats.totalViews > 0 ? stats.totalViews.toLocaleString() : '--'}</p>
+          </div>
+          <div className="card p-3 border border-emerald-500/20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <MessageSquare size={12} className="text-emerald-400" />
+              <span className="text-[9px] uppercase tracking-widest text-surface-500">WhatsApp点击</span>
             </div>
-          )}
-          {stats.pausedAds.length > 0 && (
-            <div className="card p-3 border border-surface-700">
-              <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-1">已暂停广告</p>
-              {stats.pausedAds.map((t) => (
-                <p key={t.id} className="text-xs text-surface-400">{t.adPlatform} · {t.blockReason ? '等待外部条件' : '已暂停'}</p>
-              ))}
+            <p className="text-xl font-bold text-emerald-400">{stats.totalWA > 0 ? stats.totalWA : '--'}</p>
+          </div>
+          <div className="card p-3 border border-blue-500/20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Users size={12} className="text-blue-400" />
+              <span className="text-[9px] uppercase tracking-widest text-surface-500">表单提交</span>
             </div>
-          )}
-          <div className="card p-3 border border-surface-700">
-            <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-1">卡住最多</p>
-            <p className="text-xs text-surface-300">{mostBlockedRole}</p>
-            <p className="text-[10px] text-surface-500">落后网站：{worstSite}</p>
+            <p className="text-xl font-bold text-blue-400">{stats.totalForms > 0 ? stats.totalForms : '--'}</p>
+          </div>
+          <div className="card p-3 border border-gold-500/20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <CreditCard size={12} className="text-gold-400" />
+              <span className="text-[9px] uppercase tracking-widest text-surface-500">待Vera确认预算</span>
+            </div>
+            <p className="text-xl font-bold text-gold-400">{stats.budgetPending}</p>
+            <p className="text-[10px] text-surface-600">{stats.budgetPending > 0 ? '需要审批' : '暂无申请'}</p>
+          </div>
+        </div>
+
+        {/* Best / Worst / Needs Action */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Best Ad */}
+          <div className="card p-3 border border-emerald-500/20">
+            <div className="flex items-center gap-1.5 mb-2">
+              <TrendingUp size={11} className="text-emerald-400" />
+              <p className="text-[9px] uppercase tracking-widest text-surface-500">最佳广告</p>
+            </div>
+            {stats.bestPageAd ? (
+              <>
+                <p className="text-xs text-emerald-300 font-medium leading-snug">{stats.bestPageAd.adPlatform}</p>
+                <p className="text-[10px] text-surface-400 mt-0.5">{stats.bestPageAd.website.replace('.com','').replace('.ru','')}</p>
+                <p className="text-[10px] text-emerald-400/80 mt-1">{stats.bestPageAd.validInquiries || stats.bestPageAd.inquiries || 0} 有效询盘 · CPL ${stats.bestPageAd.cpl || '--'}</p>
+              </>
+            ) : <p className="text-xs text-surface-600">暂无数据</p>}
+          </div>
+
+          {/* Worst Ad */}
+          <div className="card p-3 border border-red-500/20">
+            <div className="flex items-center gap-1.5 mb-2">
+              <TrendingDown size={11} className="text-[#e88989]" />
+              <p className="text-[9px] uppercase tracking-widest text-surface-500">最差广告</p>
+            </div>
+            {stats.worstAd ? (
+              <>
+                <p className="text-xs text-[#e88989] font-medium leading-snug">{stats.worstAd.adPlatform}</p>
+                <p className="text-[10px] text-surface-400 mt-0.5">{stats.worstAd.website.replace('.com','').replace('.ru','')}</p>
+                <p className="text-[10px] text-red-400/80 mt-1">CPL ${stats.worstAd.cpl} · 需优化</p>
+              </>
+            ) : <p className="text-xs text-surface-600">暂无数据</p>}
+          </div>
+
+          {/* Needs pause / optimize */}
+          <div className="card p-3 border border-amber-500/20">
+            <div className="flex items-center gap-1.5 mb-2">
+              <PauseCircle size={11} className="text-amber-400" />
+              <p className="text-[9px] uppercase tracking-widest text-surface-500">需关注</p>
+            </div>
+            {stats.needOptimize.length > 0 ? (
+              <div className="space-y-1">
+                {stats.needOptimize.slice(0, 2).map((t) => (
+                  <p key={t.id} className="text-[10px] text-amber-300">{t.adPlatform} · 需优化</p>
+                ))}
+              </div>
+            ) : null}
+            {stats.pausedAds.length > 0 ? (
+              <div className="space-y-1 mt-1">
+                {stats.pausedAds.slice(0, 1).map((t) => (
+                  <p key={t.id} className="text-[10px] text-surface-400">{t.adPlatform} · 已暂停</p>
+                ))}
+              </div>
+            ) : null}
+            {stats.needOptimize.length === 0 && stats.pausedAds.length === 0 && (
+              <p className="text-xs text-surface-600">广告运行正常</p>
+            )}
+          </div>
+
+          {/* Scale candidates */}
+          <div className="card p-3 border border-emerald-500/20">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Activity size={11} className="text-emerald-400" />
+              <p className="text-[9px] uppercase tracking-widest text-surface-500">放大候选</p>
+            </div>
+            {stats.scaleAds.length > 0 ? (
+              <div className="space-y-1">
+                {stats.scaleAds.slice(0, 2).map((t) => (
+                  <p key={t.id} className="text-[10px] text-emerald-300">{t.adPlatform} · {t.website.replace('.com','').replace('.ru','')}</p>
+                ))}
+                {stats.scaleAds.length > 2 && <p className="text-[10px] text-surface-500">+{stats.scaleAds.length - 2} 更多</p>}
+              </div>
+            ) : <p className="text-xs text-surface-600">暂无候选</p>}
           </div>
         </div>
       </div>

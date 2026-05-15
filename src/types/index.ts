@@ -22,11 +22,13 @@ export type AdStatus =
   | '待审核素材'
   | '待确认落地页'
   | '待上线'
-  | 'AI建议预算'         // Phase 4
-  | '等待Vera确认预算'   // Phase 4
-  | 'Vera已确认预算'     // Phase 4
-  | 'Vera拒绝预算'       // Phase 4
+  | 'AI建议预算'
+  | '等待Vera确认预算'
+  | 'Vera已确认预算'
+  | 'Vera拒绝预算'
   | '投放中'
+  | '观察中'
+  | '放大候选'
   | '暂停'
   | '需优化'
   | '已结束';
@@ -139,12 +141,25 @@ export interface Task {
   clicks?: number;
   ctr?: number;
   cpc?: number;
+  views?: number;           // 视频观看量
+  cpv?: number;             // 每次观看成本
+  whatsappClicks?: number;  // WhatsApp点击数
+  formSubmits?: number;     // 表单提交数
+  validInquiries?: number;  // 有效询盘（剔除无效）
   inquiries?: number;
   cpl?: number;
   conversionRate?: number;
   adStatus?: AdStatus;
   aDeadline?: string;
   dataFeedback?: string;
+  adNextAction?: string;    // 小A下一步动作
+
+  // Ad review / 广告复盘
+  adPerformanceSummary?: string;  // 数据表现概述
+  adIssues?: string;              // 问题判断
+  adRecommendations?: string;     // 推荐动作
+  veraAdDecision?: string;        // Vera最终决定
+  veraAdDecisionAt?: string;
 
   // Result judgment
   hasInquiry?: boolean;
@@ -242,11 +257,13 @@ export const AD_STATUS_COLORS: Record<AdStatus, string> = {
   '待审核素材':        'bg-amber-950 text-amber-300 border-amber-800',
   '待确认落地页':      'bg-cyan-950 text-cyan-300 border-cyan-800',
   '待上线':            'bg-blue-950 text-blue-300 border-blue-800',
-  'AI建议预算':        'bg-violet-950/60 text-violet-300 border-violet-800/50',
+  'AI建议预算':        'bg-blue-950/60 text-blue-300 border-blue-800/50',
   '等待Vera确认预算':  'bg-gold-900/30 text-gold-300 border-gold-700/50',
   'Vera已确认预算':    'bg-emerald-950 text-emerald-300 border-emerald-800',
   'Vera拒绝预算':      'bg-red-950 text-[#e88989] border-red-800/50',
   '投放中':            'bg-orange-950 text-orange-300 border-orange-800',
+  '观察中':            'bg-cyan-950/60 text-cyan-300 border-cyan-800/50',
+  '放大候选':          'bg-emerald-950/60 text-emerald-300 border-emerald-700/50',
   '暂停':              'bg-surface-800 text-surface-400 border-surface-600',
   '需优化':            'bg-red-950/60 text-[#e88989] border-red-800/50',
   '已结束':            'bg-surface-800 text-surface-500 border-surface-700',
