@@ -30,6 +30,16 @@ const DECISION_ICON: Record<DecisionStatus, React.ReactNode> = {
   neutral: <TrendingDown size={12} className="text-surface-500" />,
 };
 
+const REVIEW_STATUS_LABELS: Record<string, string> = {
+  pending: '待审核',
+  approved: '已通过',
+  revise_required: '需修改',
+  rejected: '禁止发布',
+  internal_only: '仅内部',
+  masking_required: '需打码',
+  boss_confirm_required: '需老板确认',
+};
+
 function DecisionCard({ label, value, status, action }: { label: string; value: string; status: DecisionStatus; action?: string }) {
   return (
     <div className={`p-3 rounded-lg border ${DECISION_STYLES[status]}`}>
@@ -46,6 +56,7 @@ function DecisionCard({ label, value, status, action }: { label: string; value: 
 // ── Task row ──────────────────────────────────────────────────────────────────
 
 function VeraTaskRow({ task, onClick, showActions = true }: { task: Task; onClick: (t: Task) => void; showActions?: boolean }) {
+  const reviewStatus = task.contentReviewStatus || task.externalAIReviewStatus;
   return (
     <div onClick={() => onClick(task)} className="card card-hover p-4 border-l-2 border-l-gold-400 cursor-pointer">
       <div className="flex flex-col sm:flex-row sm:items-start gap-3">
@@ -59,6 +70,11 @@ function VeraTaskRow({ task, onClick, showActions = true }: { task: Task; onClic
               <span className={`inline-flex items-center gap-1 border rounded-full text-[10px] px-2 py-0.5 ${RISK_LEVEL_STYLES[task.riskLevel]}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${RISK_LEVEL_DOT[task.riskLevel]}`} />
                 {task.riskLevel}风险{task.aiRiskScore != null ? ` · ${task.aiRiskScore}分` : ''}
+              </span>
+            )}
+            {reviewStatus && (
+              <span className="text-[10px] px-2 py-0.5 rounded border bg-surface-800 text-surface-300 border-surface-600">
+                {REVIEW_STATUS_LABELS[reviewStatus] || reviewStatus}
               </span>
             )}
           </div>

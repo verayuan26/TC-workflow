@@ -4,7 +4,7 @@ import type { Task, FilterState } from '../types';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { FilterBar } from '../components/FilterBar';
 import { TaskModal } from '../components/TaskModal';
-import { filterTasks } from '../services/taskApi';
+import { filterTasks } from '../services/taskService';
 
 const S_STATUSES = ['01_AI待生成', '02_小S待审核', '05_小S待终审', '07_待发布', '09_数据待复盘', '99_暂停/返工'];
 
@@ -27,8 +27,9 @@ export function SWorkstation({ tasks }: SWorkstationProps) {
       t.contentType === '发布文案' ||
       t.contentType === '数据复盘'
     );
+    const distributedOnly = relevant.filter((t) => t.distributionStatus !== 'not_distributed' && t.draftStatus !== 'draft' && t.draftStatus !== 'needs_vera_check');
     const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? '小S' : filters.assignedTo };
-    return filterTasks(relevant, applied);
+    return filterTasks(distributedOnly, applied);
   }, [tasks, filters]);
 
   const overdueTasks = sTasks.filter((t) => t.isOverdue);

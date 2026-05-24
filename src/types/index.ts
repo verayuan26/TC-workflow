@@ -1,3 +1,7 @@
+import type { PMBrief } from './brief';
+import type { ReviewStatus } from './review';
+import type { SuggestedContentUse, StoryPrivacyLevel, StoryUsagePermission } from './feedback';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Tiger Content Workflow — Type Definitions  (Phase 4)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,6 +64,10 @@ export type Priority = 'A' | 'B' | 'C';
 export type Role = '小M' | '小S' | '小C' | '小A' | 'Vera' | '龙虾';
 export type RiskLevel = '低' | '中' | '高';
 export type BudgetStatus = 'AI建议预算' | '等待Vera确认预算' | 'Vera已确认预算' | 'Vera拒绝预算';
+export type Workstream = 'S' | 'M' | 'C' | 'Ads' | 'Review';
+export type BuildStatus = 'not_required' | 'pending' | 'success' | 'failed';
+export type CrmLeadStatus = 'none' | 'new' | 'contacted' | 'qualified' | 'high_intent' | 'invalid' | 'closed';
+export type CrmApiSyncStatus = 'not_required' | 'pending' | 'synced' | 'failed';
 
 export const WEBSITES = [
   'tigersourcingchina.com',
@@ -200,6 +208,64 @@ export interface Task {
   currentBudget?: number;
   budgetNote?: string;
 
+
+  // PM / Tiger parent agent fields
+  weeklyGoal?: string;
+  workstream?: Workstream;
+  taskGoal?: string;
+  inputMaterials?: string;
+  expectedOutput?: string;
+  unifiedDeadline?: string;
+  completionPct?: number;
+  sourceBriefId?: string;
+  reviewRequired?: boolean;
+  draftStatus?: 'draft' | 'needs_vera_check' | 'approved_for_distribution' | 'distributed' | 'rejected';
+  distributionStatus?: 'not_distributed' | 'distributed' | 'accepted' | 'in_progress' | 'submitted' | 'under_review' | 'revise_required' | 'completed' | 'blocked';
+  feedbackSummary?: string;
+  dataResult?: string;
+  requiresHumanReviewReason?: string;
+  sensitiveReviewFlags?: string[];
+
+  // Tool involvement
+  needsCodex?: boolean;
+  needsBolt?: boolean;
+  needsExternalAI?: boolean;
+  externalToolHandledBy?: string;
+  externalToolResultLink?: string;
+  externalAIUseCase?: 'copywriting' | 'seo_brief' | 'video_script' | 'weekly_report' | 'crm_story_rewrite' | 'vk_post' | 'landing_page_copy' | 'translation' | 'data_summary';
+  externalAIInput?: string;
+  externalAIExpectedOutput?: string;
+  externalAIReviewStatus?: ReviewStatus;
+  codexAllowedFiles?: string[];
+  codexBranchOrWorktree?: string;
+  buildStatus?: BuildStatus;
+  deployPreviewUrl?: string;
+
+  // CRM
+  crmLeadStatus?: CrmLeadStatus;
+  crmLeadQuality?: string;
+  crmNextAction?: string;
+  crmSource?: string;
+  crmApiSyncStatus?: CrmApiSyncStatus;
+  contentReviewStatus?: ReviewStatus;
+
+  // CRM feedback as source material (not CRM execution workstation)
+  crmFeedbackSummary?: string;
+  salespersonDailyLog?: string;
+  realCustomerStorySnippet?: string;
+  customerQuestion?: string;
+  customerObjection?: string;
+  transactionContext?: string;
+  storySource?: string;
+  storyPrivacyLevel?: StoryPrivacyLevel;
+  storyUsagePermission?: StoryUsagePermission;
+  suggestedContentUse?: SuggestedContentUse;
+  leadCount?: number;
+  qualifiedLeadCount?: number;
+  highIntentLeadCount?: number;
+  invalidLeadCount?: number;
+  nextOptimizationAction?: string;
+
   // Common
   nextAssignee?: string;
   nextAction?: string;
@@ -277,3 +343,5 @@ export const PLATFORM_COLORS: Record<AdPlatform, string> = {
   'YouTube Ads':   'text-red-300',
   'Meta Ads':      'text-blue-400',
 };
+
+export type { PMBrief };

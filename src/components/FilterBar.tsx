@@ -16,7 +16,7 @@ const STATUS_SHORT: Record<string, string> = {
 };
 
 const CONTENT_TYPES = ['短视频', '长视频', 'SEO文章', 'Landing Page', 'URL检查', '素材整理', '发布文案', '数据复盘'];
-const ROLES = ['小M', '小S', '小C', 'Vera', '龙虾'];
+const ROLES = ['小M', '小S', '小C', '小A', 'Vera', '龙虾'];
 
 interface FilterBarProps {
   filters: FilterState;

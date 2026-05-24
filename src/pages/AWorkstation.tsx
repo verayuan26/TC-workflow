@@ -5,7 +5,7 @@ import { AD_STATUS_COLORS, PLATFORM_COLORS } from '../types';
 import { PriorityBadge } from '../components/StatusBadge';
 import { FilterBar } from '../components/FilterBar';
 import { TaskModal } from '../components/TaskModal';
-import { filterTasks } from '../services/taskApi';
+import { filterTasks } from '../services/taskService';
 
 const DEFAULT_FILTERS: FilterState = {
   assignedTo: '小A', website: 'all', contentType: 'all',
@@ -270,7 +270,14 @@ export function AWorkstation({ tasks }: AWorkstationProps) {
 
   const adTasks = useMemo(() => {
     const relevant = tasks.filter((t) => t.isAdTask || t.assignedTo === '小A');
-    return filterTasks(relevant, { ...filters, assignedTo: 'all' });
+    const distributedOnly = relevant.filter(
+      (t) =>
+        t.distributionStatus !== 'not_distributed' &&
+        t.draftStatus !== 'draft' &&
+        t.draftStatus !== 'needs_vera_check' &&
+        t.draftStatus !== 'rejected'
+    );
+    return filterTasks(distributedOnly, { ...filters, assignedTo: 'all' });
   }, [tasks, filters]);
 
   const totalSpent       = adTasks.reduce((s, t) => s + (t.spent || 0), 0);

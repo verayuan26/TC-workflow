@@ -1,7 +1,7 @@
-import { LayoutDashboard, Scissors, FileText, Link2, ShieldCheck, Menu, X, BarChart2, SendToBack, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Scissors, FileText, Link2, ShieldCheck, Menu, X, BarChart2, SendToBack, BookOpen, Crown } from 'lucide-react';
 import { useState } from 'react';
 
-export type Page = 'dashboard' | 'm-workstation' | 's-workstation' | 'c-workstation' | 'a-workstation' | 'vera-review' | 'publish-queue' | 'rules-page';
+export type Page = 'dashboard' | 'pm-brief-inbox' | 'task-drafts' | 'panghu-pm' | 'm-workstation' | 's-workstation' | 'c-workstation' | 'a-workstation' | 'vera-review' | 'publish-queue' | 'rules-page';
 
 interface NavItem {
   id: Page;
@@ -12,6 +12,9 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard',      label: '总览',      sublabel: 'Dashboard',   icon: <LayoutDashboard size={16} /> },
+  { id: 'pm-brief-inbox', label: '胖虎任务入口', sublabel: 'PM Brief Inbox', icon: <Crown size={16} /> },
+  { id: 'task-drafts',    label: '任务草稿池',   sublabel: 'Task Drafts', icon: <Crown size={16} /> },
+  { id: 'panghu-pm',      label: '胖虎总控',    sublabel: 'Tiger Growth PM', icon: <Crown size={16} /> },
   { id: 'm-workstation',  label: '小M工作台',  sublabel: '视频·素材',   icon: <Scissors size={16} /> },
   { id: 's-workstation',  label: '小S工作台',  sublabel: '内容·关键词', icon: <FileText size={16} /> },
   { id: 'c-workstation',  label: '小C工作台',  sublabel: '技术·链接',   icon: <Link2 size={16} /> },

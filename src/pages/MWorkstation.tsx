@@ -4,7 +4,7 @@ import type { Task, FilterState } from '../types';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { FilterBar } from '../components/FilterBar';
 import { TaskModal } from '../components/TaskModal';
-import { filterTasks } from '../services/taskApi';
+import { filterTasks } from '../services/taskService';
 
 const DEFAULT_FILTERS: FilterState = {
   assignedTo: '小M', website: 'all', contentType: 'all',
@@ -25,8 +25,9 @@ export function MWorkstation({ tasks }: MWorkstationProps) {
       t.contentType === '短视频' ||
       t.contentType === '长视频'
     );
+    const distributedOnly = relevant.filter((t) => t.distributionStatus !== 'not_distributed' && t.draftStatus !== 'draft' && t.draftStatus !== 'needs_vera_check');
     const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? '小M' : filters.assignedTo };
-    return filterTasks(relevant, applied);
+    return filterTasks(distributedOnly, applied);
   }, [tasks, filters]);
 
   const overdueTasks = mTasks.filter((t) => t.isOverdue);

@@ -215,13 +215,33 @@ export function Dashboard({ tasks }: DashboardProps) {
   // Which role has most blocked tasks
   const mostBlockedRole = useMemo(() => {
     let max = 0; let name = '--';
-    ROLES.forEach(({ role, label }, i) => {
+    ROLES.forEach(({ label }, i) => {
       if (roleStats[i].blocked > max) { max = roleStats[i].blocked; name = label.split('  ')[0]; }
     });
     return max > 0 ? `${name} (${max}条阻塞)` : '无';
   }, [roleStats]);
 
-  // Worst website (lowest completion %)
+
+
+  const pmOverview = useMemo(() => {
+    const weeklyGoalTasks = tasks.filter((t) => !!t.weeklyGoal).length;
+    const lineDist = {
+      s: tasks.filter((t) => t.workstream === 'S').length,
+      m: tasks.filter((t) => t.workstream === 'M').length,
+      c: tasks.filter((t) => t.workstream === 'C').length,
+      ads: tasks.filter((t) => t.workstream === 'Ads').length,
+      review: tasks.filter((t) => t.workstream === 'Review' || t.assignedTo === 'Vera').length,
+    };
+    const codexCount = tasks.filter((t) => t.needsCodex).length;
+    const boltCount = tasks.filter((t) => t.needsBolt).length;
+    const gptCount = tasks.filter((t) => t.needsExternalAI).length;
+    const bossReviewCount = tasks.filter((t) => t.needsVeraReview).length;
+    const crmHighIntent = tasks.filter((t) => t.crmLeadStatus === 'high_intent').length;
+    const buildOrDeployRisk = tasks.filter((t) => t.buildStatus === 'failed' || (t.buildStatus === 'pending' && !!t.deployPreviewUrl)).length;
+    return { weeklyGoalTasks, lineDist, codexCount, boltCount, gptCount, bossReviewCount, crmHighIntent, buildOrDeployRisk };
+  }, [tasks]);
+
+    // Worst website (lowest completion %)
   const worstSite = useMemo(() => {
     let minPct = 101; let name = '--';
     websiteStats.forEach(({ site, total, done }) => {
@@ -233,6 +253,21 @@ export function Dashboard({ tasks }: DashboardProps) {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
+
+      <div>
+        <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest mb-3">胖虎总控概览 · Tiger Growth PM Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <QuickStat label="本周目标任务" value={pmOverview.weeklyGoalTasks} icon={<CheckCircle2 size={14} />} accent="surface" />
+          <QuickStat label="工具介入" value={`${pmOverview.codexCount}/${pmOverview.boltCount}/${pmOverview.gptCount}`} sub="Codex / Bolt / ChatGPT" icon={<Bot size={14} />} accent="gold" />
+          <QuickStat label="老板审核" value={pmOverview.bossReviewCount} icon={<ShieldCheck size={14} />} accent={pmOverview.bossReviewCount > 0 ? 'orange' : 'surface'} />
+          <QuickStat label="CRM高意向" value={pmOverview.crmHighIntent} icon={<Users size={14} />} accent={pmOverview.crmHighIntent > 0 ? 'emerald' : 'surface'} />
+          <QuickStat label="Build/Deploy风险" value={pmOverview.buildOrDeployRisk} sub="build failed / deploy pending" icon={<Activity size={14} />} accent={pmOverview.buildOrDeployRisk > 0 ? 'red' : 'surface'} />
+          <div className="card p-3 border border-surface-700">
+            <p className="text-[9px] uppercase tracking-widest text-surface-500 mb-2">执行线分布 S / M / C / Ads / CRM</p>
+            <p className="text-xs text-surface-300">{pmOverview.lineDist.s} / {pmOverview.lineDist.m} / {pmOverview.lineDist.c} / {pmOverview.lineDist.ads} / {pmOverview.lineDist.review}</p>
+          </div>
+        </div>
+      </div>
 
       {/* ── HERO: Completion + Critical Stats ───────────────────────────── */}
       <div>

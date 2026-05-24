@@ -1,11 +1,14 @@
-/**
- * Tiger Content Workflow — Task API Adapter
- *
- * Mock-backed today; replace with real API in future versions.
- */
-
 import type { Task, FilterState } from '../types';
-import { MOCK_TASKS, PM_BRIEFS, TASK_DRAFTS } from './data/mockTasks';
+import { MOCK_TASKS } from './mockData';
+
+export async function getTasks(): Promise<Task[]> {
+  return Promise.resolve(MOCK_TASKS);
+}
+
+export async function updateTaskField(id: string, field: string, value: unknown): Promise<void> {
+  console.log('[taskService] updateTaskField', { id, field, value });
+  return Promise.resolve();
+}
 
 export function filterTasks(tasks: Task[], filters: Partial<FilterState>): Task[] {
   return tasks.filter((t) => {
@@ -19,14 +22,3 @@ export function filterTasks(tasks: Task[], filters: Partial<FilterState>): Task[
     return true;
   });
 }
-
-export async function getTasks(): Promise<Task[]> {
-  return Promise.resolve(MOCK_TASKS);
-}
-
-export async function updateTaskField(id: string, field: string, value: unknown): Promise<void> {
-  console.log('[taskApi] updateTaskField', { id, field, value });
-  return Promise.resolve();
-}
-
-export { MOCK_TASKS, PM_BRIEFS, TASK_DRAFTS };
