@@ -1,6 +1,6 @@
-# 《AI JSON 字段 → Workflow App Task 字段映射表》
+# 《AI JSON 字段 → Workflow App Task 字段映射表》（V1 正式使用版）
 
-> 目标：将《Workflow App AI 任务导入 JSON 标准 V1》字段映射到 Workflow App Task 模型，供技术员按同一口径实现。  
+> 目标：将《Workflow App AI 任务导入 JSON 标准 V1》字段映射到 Workflow App Task 模型，并补齐发布队列与手动指标闭环所需字段。  
 > 范围：仅文档说明，不改代码、不接真实 API。
 
 ---
@@ -9,14 +9,14 @@
 
 | AI JSON 字段 | Task/系统侧对应 | 当前状态 | 说明 |
 |---|---|---|---|
-| `plan_name` | 建议 `plans.plan_name` | 需新增 | 计划批次名，不属于单任务字段。 |
-| `plan_period.start_date` | 建议 `plans.start_date` | 需新增 | 计划开始日期。 |
-| `plan_period.end_date` | 建议 `plans.end_date` | 需新增 | 计划结束日期。 |
-| `plan_period.timezone` | 建议 `plans.timezone` | 需新增 | 固定 `Asia/Shanghai`。 |
-| `stage_focus[]` | 建议 `plans.stage_focus`(json) | 需新增 | 阶段主线标签。 |
-| `target_proposal` | 建议 `plans.target_proposal`(json) | 需新增 | 提案值，不是承诺。 |
-| `orchestrator_note` | 建议 `plans.orchestrator_note` | 需新增 | 龙虾边界说明。 |
-| `system_block_rules` | 建议 `plans.system_block_rules`(json) | 需新增 | 拦截词与动作配置。 |
+| `plan_name` | `plans.plan_name` | 需新增 | 计划批次名，不属于单任务字段。 |
+| `plan_period.start_date` | `plans.start_date` | 需新增 | 计划开始日期。 |
+| `plan_period.end_date` | `plans.end_date` | 需新增 | 计划结束日期。 |
+| `plan_period.timezone` | `plans.timezone` | 需新增 | 固定 `Asia/Shanghai`。 |
+| `stage_focus[]` | `plans.stage_focus`(json) | 需新增 | 阶段主线标签。 |
+| `target_proposal` | `plans.target_proposal`(json) | 需新增 | 提案值，不是承诺。 |
+| `orchestrator_note` | `plans.orchestrator_note` | 需新增 | 龙虾边界说明。 |
+| `system_block_rules` | `plans.system_block_rules`(json) | 需新增 | 拦截词与动作配置。 |
 
 ---
 
@@ -44,37 +44,29 @@
 | `related_page` | `tasks.related_page` | 需新增 | 数据库字段 |
 | `cta_type` | `tasks.cta_type` | 需新增 | 数据库字段 |
 | `system_block_check_required` | `tasks.system_block_check_required` | 需新增 | 数据库字段 |
+| `published_urls[]` | `tasks.published_urls`(json) | 需新增 | 发布回填字段 |
+| `distribution_export_id` | `tasks.distribution_export_id` | 需新增 | 发布导出关联 |
+| `publish_queue_status` | `tasks.publish_queue_status` | 需新增 | 发布队列状态 |
 
 ---
 
-## 3. 前端展示字段 vs 数据库字段
+## 3. 发布与指标闭环字段（新增）
 
-- **数据库字段（必须落库）**：以上 Task 级全部字段 + Plan 级全部字段。  
-- **前端展示衍生字段（可计算）**：如状态徽章文案、风险颜色、审核队列展示标签。  
-
----
-
-## 4. 需要 API 支持的字段（最小集）
-
-P0 必须支持：
-- `status`（默认 `AI_DRAFT`）
-- `requires_vera_review` + `review_reason[]`
-- `business_vertical[]`
-- `requires_utm`
-- `cta_type`
-- `system_block_check_required`
-
-P1 建议支持：
-- `channels[]`
-- `crm_tags[]`
-- `deliverables[]`
-- `acceptance_criteria[]`
+| 模块 | 字段建议 | 说明 |
+|---|---|---|
+| Publish Queue | `publish_queue.task_id` / `queue_status` / `queued_at` | 仅内部排队，不自动发布。 |
+| Distribution Export | `distribution_exports.export_id` / `channels` / `payload` | 导出素材包给人工发布。 |
+| Published URL 回填 | `published_links.task_id` / `channel` / `url` / `published_at` | 人工发布后回填。 |
+| Metrics Manual Input | `manual_metrics.task_id` / `channel` / `metric_date` / `impressions` / `clicks` / `leads` / `cost` | 手工录入指标，不接广告 API。 |
+| Weekly Report | `weekly_reports.report_week` / `summary_json` | 由任务+URL+手工指标聚合生成。 |
 
 ---
 
-## 5. 关键一致性规则
+## 4. 关键一致性规则
 
 1. `review_reason` 必须为数组，不可为字符串。  
 2. `business_vertical` 必须为数组。  
 3. 内部页（`/ops/*`, `/ads/*`）`cta_type=not_applicable`。  
-4. 命中 SYSTEM_BLOCK 词后，任务不可提交发布链路。  
+4. 命中 SYSTEM_BLOCK 词后，任务不可提交且不可进入发布队列。  
+5. 未通过 Vera 审核的高风险任务，不可进入发布队列。  
+6. Published URL 只能手工回填，不通过外部 webhook 自动写回。
