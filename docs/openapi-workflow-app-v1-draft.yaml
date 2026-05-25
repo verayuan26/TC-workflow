@@ -1,0 +1,345 @@
+openapi: 3.0.3
+info:
+  title: Workflow App V1 Draft API
+  version: 1.0.0-draft
+  description: |
+    Mock/Draft only. No real CRM, ad platform, social publish API, or OpenAI API integration.
+servers:
+  - url: https://api-placeholder.local
+
+tags:
+  - name: tasks
+  - name: reviews
+  - name: publish-queue
+  - name: metrics
+  - name: reports
+  - name: briefs
+  - name: crm-feedback
+  - name: ai-runs
+  - name: utm
+  - name: agents
+
+paths:
+  /api/tasks/import-ai-draft:
+    post:
+      tags: [tasks]
+      summary: Import AI draft tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportAiDraftRequest'
+      responses:
+        '200': {description: imported}
+        '400': {$ref: '#/components/responses/BadRequest'}
+
+  /api/tasks:
+    get:
+      tags: [tasks]
+      summary: List tasks
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: '#/components/schemas/Task'}
+
+  /api/tasks/{task_id}:
+    patch:
+      tags: [tasks]
+      summary: Update task
+      parameters:
+        - $ref: '#/components/parameters/task_id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': {description: updated}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/tasks/{task_id}/submit:
+    post:
+      tags: [tasks]
+      summary: Submit task
+      parameters:
+        - $ref: '#/components/parameters/task_id'
+      responses:
+        '200': {description: submitted}
+        '409': {$ref: '#/components/responses/ConflictError'}
+
+  /api/tasks/{task_id}/review:
+    post:
+      tags: [reviews]
+      summary: Review task by Vera
+      parameters:
+        - $ref: '#/components/parameters/task_id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+      responses:
+        '200': {description: reviewed}
+        '400': {$ref: '#/components/responses/BadRequest'}
+
+  /api/reviews:
+    get:
+      tags: [reviews]
+      summary: List reviews
+      responses:
+        '200': {description: ok}
+
+  /api/utm/generate:
+    post:
+      tags: [utm]
+      summary: Generate UTM URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UtmRequest'
+      responses:
+        '200': {description: generated}
+
+  /api/publish-queue:
+    post:
+      tags: [publish-queue]
+      summary: Create publish queue item
+      description: Block SYSTEM_BLOCK tasks and unapproved high-risk tasks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishQueueItemCreate'
+      responses:
+        '200': {description: queued}
+        '403': {$ref: '#/components/responses/ForbiddenError'}
+    get:
+      tags: [publish-queue]
+      summary: List publish queue items
+      responses:
+        '200': {description: ok}
+
+  /api/publish-queue/{id}:
+    patch:
+      tags: [publish-queue]
+      summary: Update publish queue item
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': {description: updated}
+
+  /api/publish-queue/{id}/mark-published:
+    post:
+      tags: [publish-queue]
+      summary: Manually mark published and fill publish URL
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkPublishedRequest'
+      responses:
+        '200': {description: marked}
+
+  /api/metrics/manual-input:
+    post:
+      tags: [metrics]
+      summary: Manual metrics input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualMetricsInput'
+      responses:
+        '200': {description: stored}
+
+  /api/reports/weekly:
+    get:
+      tags: [reports]
+      summary: Get weekly report
+      responses:
+        '200': {description: ok}
+
+  /api/briefs:
+    post:
+      tags: [briefs]
+      summary: Create brief (mock)
+      responses: {'200': {description: ok}}
+    get:
+      tags: [briefs]
+      summary: List briefs (mock)
+      responses: {'200': {description: ok}}
+
+  /api/agents/longxia/generate-tasks:
+    post:
+      tags: [agents]
+      summary: Generate task draft by longxia (mock)
+      responses: {'200': {description: ok}}
+
+  /api/crm-feedback:
+    post:
+      tags: [crm-feedback]
+      summary: Create CRM feedback (mock)
+      responses: {'200': {description: ok}}
+    get:
+      tags: [crm-feedback]
+      summary: List CRM feedback (mock)
+      responses: {'200': {description: ok}}
+
+  /api/ai-runs:
+    post:
+      tags: [ai-runs]
+      summary: Create AI run record (mock)
+      responses: {'200': {description: ok}}
+    get:
+      tags: [ai-runs]
+      summary: List AI runs (mock)
+      responses: {'200': {description: ok}}
+
+components:
+  parameters:
+    task_id:
+      name: task_id
+      in: path
+      required: true
+      schema: {type: string}
+    id:
+      name: id
+      in: path
+      required: true
+      schema: {type: string}
+
+  responses:
+    BadRequest:
+      description: bad request
+    NotFound:
+      description: not found
+    ConflictError:
+      description: state conflict
+    ForbiddenError:
+      description: forbidden by review/SYSTEM_BLOCK rule
+
+  schemas:
+    Task:
+      type: object
+      required: [task_id, role, title, priority, status, review_reason, business_vertical, system_block_check_required]
+      properties:
+        task_id: {type: string}
+        role: {type: string, enum: [小S, 小M, 小C, 小A]}
+        title: {type: string}
+        description: {type: string}
+        priority: {type: string, enum: [P0, P1, P2]}
+        status: {type: string, enum: [AI_DRAFT, SYSTEM_BLOCK, VERA_REVIEW, APPROVED, REJECTED]}
+        due_at: {type: string, format: date-time}
+        deliverables: {type: array, items: {type: string}}
+        acceptance_criteria: {type: array, items: {type: string}}
+        requires_vera_review: {type: boolean}
+        review_reason: {type: array, items: {type: string}}
+        risk_level: {type: string, enum: [低, 中, 高]}
+        channels: {type: array, items: {type: string}}
+        crm_tags: {type: array, items: {type: string}}
+        requires_utm: {type: boolean}
+        business_vertical: {type: array, items: {type: string}}
+        target_customer: {type: string}
+        related_page: {type: string}
+        cta_type: {type: string}
+        system_block_check_required: {type: boolean}
+
+    ImportAiDraftRequest:
+      type: object
+      required: [plan_name, plan_period, tasks]
+      properties:
+        plan_name: {type: string}
+        plan_period:
+          type: object
+          required: [start_date, end_date, timezone]
+          properties:
+            start_date: {type: string}
+            end_date: {type: string}
+            timezone: {type: string, enum: [Asia/Shanghai]}
+        tasks:
+          type: array
+          items: {$ref: '#/components/schemas/Task'}
+
+    ReviewRequest:
+      type: object
+      required: [decision]
+      properties:
+        decision: {type: string, enum: [APPROVED, REJECTED, NEED_EDIT]}
+        comment: {type: string}
+
+    UtmRequest:
+      type: object
+      required: [source, medium, campaign, content]
+      properties:
+        source: {type: string}
+        medium: {type: string}
+        campaign: {type: string}
+        content: {type: string}
+
+    PublishQueueItemCreate:
+      type: object
+      required: [task_id, platform, caption, cta, utm_url, status]
+      properties:
+        task_id: {type: string}
+        platform: {type: string}
+        caption: {type: string}
+        hashtags: {type: array, items: {type: string}}
+        cta: {type: string}
+        utm_url: {type: string}
+        asset_url: {type: string}
+        scheduled_time: {type: string, format: date-time}
+        owner: {type: string}
+        status:
+          type: string
+          enum: [DRAFT, WAIT_VERA, READY_TO_PUBLISH, PUBLISHED, FAILED, NEED_EDIT]
+
+    MarkPublishedRequest:
+      type: object
+      required: [publish_url, published_at, publisher, platform]
+      properties:
+        publish_url: {type: string}
+        published_at: {type: string, format: date-time}
+        publisher: {type: string}
+        platform: {type: string}
+
+    ManualMetricsInput:
+      type: object
+      required: [task_id, platform, content_id, crm_tags, business_vertical]
+      properties:
+        task_id: {type: string}
+        content_id: {type: string}
+        platform: {type: string}
+        campaign: {type: string}
+        crm_tags: {type: array, items: {type: string}}
+        business_vertical: {type: array, items: {type: string}}
+        impressions: {type: integer}
+        clicks: {type: integer}
+        comments: {type: integer}
+        dm: {type: integer}
+        forms: {type: integer}
+        valid_leads: {type: integer}
+        sql_count: {type: integer}
+        cost: {type: number}
