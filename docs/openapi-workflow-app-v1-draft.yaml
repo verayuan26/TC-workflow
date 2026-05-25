@@ -95,7 +95,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 入队成功
+          description: 入队成功（仅 APPROVED 且非 SYSTEM_BLOCK 任务可入队）
         '409':
           description: SYSTEM_BLOCK 或审核未通过
 
@@ -111,7 +111,7 @@ paths:
       summary: 回填已发布 URL（人工回填）
       responses:
         '200':
-          description: 回填成功
+          description: 回填成功（仅人工回填，不依赖 webhook）
 
   /api/metrics/manual:
     post:
@@ -181,3 +181,19 @@ paths:
       responses:
         '200':
           description: 查询成功
+
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error_code, message]
+      properties:
+        error_code:
+          type: string
+          enum: [VALIDATION_ERROR, SYSTEM_BLOCK, REVIEW_RULE_VIOLATION, NOT_FOUND, FORBIDDEN, CONFLICT, INTERNAL_ERROR]
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true

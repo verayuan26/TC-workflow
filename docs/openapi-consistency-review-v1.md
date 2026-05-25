@@ -42,6 +42,7 @@
 5. 高风险且未通过 Vera 审核的任务，不得进入发布队列。  
 6. Distribution Export 仅导出发布素材/文案包，不触发外部平台发布。  
 7. Published URL 为人工回填，不依赖外部平台 webhook。
+8. 所有任务对象必须包含 `status` 与 `review_reason` 字段；`review_reason` 无需审核时必须为 `[]`。
 
 ---
 

@@ -64,6 +64,8 @@
 
 ## 4. 关键一致性规则
 
+> Workflow App 导入约束补充：每个任务都必须包含 `status` 字段（默认 `AI_DRAFT`）与 `review_reason` 字段（无需审核时 `[]`）。
+
 1. `review_reason` 必须为数组，不可为字符串。  
 2. `business_vertical` 必须为数组。  
 3. 内部页（`/ops/*`, `/ads/*`）`cta_type=not_applicable`。  

@@ -66,6 +66,7 @@
 - `target_proposal` 作为提案值处理，不参与“承诺结果”判断。
 - `business_vertical` 必须是数组。
 - `review_reason` 必须是数组（不审核时 `[]`）。
+- 每个任务对象必须包含 `status` 与 `review_reason`（满足 Workflow App 导入标准）。
 - 内部运营页（如 `/ops/*`, `/ads/*`）`cta_type=not_applicable`。
 - 命中 SYSTEM_BLOCK 词：任务状态改 `SYSTEM_BLOCK`，并禁止提交与发布入队。
 - 未通过 Vera 审核的高风险任务：禁止进入发布队列。
