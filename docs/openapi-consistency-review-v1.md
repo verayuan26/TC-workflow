@@ -1,5 +1,6 @@
 # OpenAPI 一致性审阅 V1（正式使用版）
 
+> PR3 conflict-resolved baseline: keep main standards + V1 formal scope.
 ## 结论
 本次将 V1 范围从“长周期分层”收敛为“正式可用闭环”，OpenAPI 草案已覆盖：
 - 内部任务与 Vera 审核

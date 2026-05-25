@@ -1,5 +1,6 @@
 # Tiger Workflow App 技术员工作需求指南 V1
 
+> PR3 conflict-resolved baseline: keep main standards + V1 formal scope.
 > 本文是 V1 正式使用版实施指南。接口标准以 `docs/openapi-workflow-app-v1-draft.yaml` 为准，不在本文重新设计接口。
 
 ## 1. V1 目标（一次到位，不分长周期）

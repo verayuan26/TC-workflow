@@ -1,5 +1,6 @@
 # AI JSON 字段 → Workflow App Task 字段映射表
 
+> PR3 conflict-resolved baseline: keep main standards + V1 formal scope.
 ## 1. 任务字段映射（V1正式使用版）
 
 | AI JSON 字段 | Task/后端字段 | 当前状态 | 分类 |

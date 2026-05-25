@@ -1,3 +1,4 @@
+# PR3 conflict-resolved baseline: keep main standards + V1 formal scope.
 openapi: 3.0.3
 info:
   title: Workflow App V1 Draft API
