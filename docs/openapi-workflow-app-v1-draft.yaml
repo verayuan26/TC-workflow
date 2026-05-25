@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: Workflow App V1 API Draft
+  version: 1.0.0-draft
+  description: |
+    Workflow App V1 后端接口草案（仅 draft/mock）。
+    不接真实 CRM、广告平台、OpenAI API。
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/tasks/import-ai-draft:
+    post:
+      summary: 导入 AI 草稿任务
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: 导入成功
+        '422':
+          description: 字段校验失败
+
+  /api/tasks:
+    get:
+      summary: 查询任务
+      responses:
+        '200':
+          description: 查询成功
+
+  /api/tasks/{task_id}:
+    patch:
+      summary: 更新任务
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新成功
+
+  /api/tasks/{task_id}/submit:
+    post:
+      summary: 提交任务进入审核
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 提交成功
+        '409':
+          description: SYSTEM_BLOCK 或状态冲突
+
+  /api/tasks/{task_id}/review:
+    post:
+      summary: 审核任务
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 审核完成
+
+  /api/reviews:
+    get:
+      summary: 查询审核记录
+      responses:
+        '200':
+          description: 查询成功
+
+  /api/briefs:
+    post:
+      summary: 创建 brief
+      responses:
+        '200':
+          description: 创建成功
+    get:
+      summary: 查询 briefs
+      responses:
+        '200':
+          description: 查询成功
+
+  /api/agents/longxia/generate-tasks:
+    post:
+      summary: 龙虾生成任务（mock）
+      responses:
+        '200':
+          description: 生成成功
+
+  /api/crm-feedback:
+    post:
+      summary: 写入 CRM 反馈（mock）
+      responses:
+        '200':
+          description: 写入成功
+    get:
+      summary: 查询 CRM 反馈（mock）
+      responses:
+        '200':
+          description: 查询成功
+
+  /api/utm/generate:
+    post:
+      summary: 生成 UTM
+      responses:
+        '200':
+          description: 生成成功
+
+  /api/ai-runs:
+    post:
+      summary: 创建 AI 运行记录（mock）
+      responses:
+        '200':
+          description: 创建成功
+    get:
+      summary: 查询 AI 运行记录（mock）
+      responses:
+        '200':
+          description: 查询成功
