@@ -1,7 +1,7 @@
-import { LayoutDashboard, Scissors, FileText, Link2, ShieldCheck, Menu, X, BarChart2, SendToBack, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Scissors, FileText, Link2, ShieldCheck, Menu, X, BarChart2, SendToBack, BookOpen, Share2, ClipboardPenLine, CalendarRange } from 'lucide-react';
 import { useState } from 'react';
 
-export type Page = 'dashboard' | 'm-workstation' | 's-workstation' | 'c-workstation' | 'a-workstation' | 'vera-review' | 'publish-queue' | 'rules-page';
+export type Page = 'dashboard' | 'm-workstation' | 's-workstation' | 'c-workstation' | 'a-workstation' | 'vera-review' | 'publish-queue' | 'distribution-export' | 'manual-metrics' | 'weekly-report' | 'rules-page';
 
 interface NavItem {
   id: Page;
@@ -18,6 +18,9 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'a-workstation',  label: '小A工作台',  sublabel: '广告·投放',   icon: <BarChart2 size={16} /> },
   { id: 'vera-review',    label: 'Vera审核台', sublabel: '审核·决策',   icon: <ShieldCheck size={16} /> },
   { id: 'publish-queue',  label: '发布队列',   sublabel: 'AI·队列',     icon: <SendToBack size={16} /> },
+  { id: 'distribution-export',  label: '分发导出',   sublabel: 'Distribution', icon: <Share2 size={16} /> },
+  { id: 'manual-metrics',      label: '手动回填',   sublabel: 'Metrics',      icon: <ClipboardPenLine size={16} /> },
+  { id: 'weekly-report',       label: '周复盘',     sublabel: 'Weekly',       icon: <CalendarRange size={16} /> },
   { id: 'rules-page',     label: 'AI规则',     sublabel: '自动·审批',   icon: <BookOpen size={16} /> },
 ];
 

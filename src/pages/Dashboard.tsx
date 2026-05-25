@@ -215,7 +215,7 @@ export function Dashboard({ tasks }: DashboardProps) {
   // Which role has most blocked tasks
   const mostBlockedRole = useMemo(() => {
     let max = 0; let name = '--';
-    ROLES.forEach(({ role, label }, i) => {
+    ROLES.forEach(({ role: _role, label }, i) => {
       if (roleStats[i].blocked > max) { max = roleStats[i].blocked; name = label.split('  ')[0]; }
     });
     return max > 0 ? `${name} (${max}条阻塞)` : '无';
