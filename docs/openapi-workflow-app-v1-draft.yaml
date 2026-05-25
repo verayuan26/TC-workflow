@@ -1,10 +1,11 @@
 openapi: 3.0.3
 info:
   title: Workflow App V1 API Draft
-  version: 1.0.0-draft
+  version: 1.1.0-draft
   description: |
-    Workflow App V1 后端接口草案（仅 draft/mock）。
-    不接真实 CRM、广告平台、OpenAI API。
+    Workflow App V1 后端接口草案（正式使用版范围，仍为 draft/mock）。
+    范围包含 Publish Queue、Distribution Export、Published URL 回填、Metrics Manual Input、Weekly Report。
+    不接真实 CRM、广告平台、OpenAI API；不做自动发布。
 
 servers:
   - url: http://localhost:3000
@@ -76,6 +77,61 @@ paths:
         '200':
           description: 查询成功
 
+  /api/publish-queue:
+    get:
+      summary: 查询发布队列
+      responses:
+        '200':
+          description: 查询成功
+
+  /api/publish-queue/{task_id}/enqueue:
+    post:
+      summary: 任务进入发布队列
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 入队成功（仅 APPROVED 且非 SYSTEM_BLOCK 任务可入队）
+        '409':
+          description: SYSTEM_BLOCK 或审核未通过
+
+  /api/distribution/exports:
+    post:
+      summary: 生成分发导出包（手动发布用）
+      responses:
+        '200':
+          description: 生成成功
+
+  /api/distribution/published-url:
+    post:
+      summary: 回填已发布 URL（人工回填）
+      responses:
+        '200':
+          description: 回填成功（仅人工回填，不依赖 webhook）
+
+  /api/metrics/manual:
+    post:
+      summary: 手动录入内容/广告指标
+      responses:
+        '200':
+          description: 录入成功
+    get:
+      summary: 查询手动录入指标
+      responses:
+        '200':
+          description: 查询成功
+
+  /api/reports/weekly:
+    get:
+      summary: 生成周报（基于任务+URL+手动指标）
+      responses:
+        '200':
+          description: 生成成功
+
   /api/briefs:
     post:
       summary: 创建 brief
@@ -125,3 +181,19 @@ paths:
       responses:
         '200':
           description: 查询成功
+
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error_code, message]
+      properties:
+        error_code:
+          type: string
+          enum: [VALIDATION_ERROR, SYSTEM_BLOCK, REVIEW_RULE_VIOLATION, NOT_FOUND, FORBIDDEN, CONFLICT, INTERNAL_ERROR]
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true

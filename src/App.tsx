@@ -7,6 +7,9 @@ import { CWorkstation } from './pages/CWorkstation';
 import { AWorkstation } from './pages/AWorkstation';
 import { VeraReview } from './pages/VeraReview';
 import { PublishQueue } from './pages/PublishQueue';
+import { DistributionExport } from './pages/DistributionExport';
+import { ManualMetricsInput } from './pages/ManualMetricsInput';
+import { WeeklyReport } from './pages/WeeklyReport';
 import { RulesPage } from './pages/RulesPage';
 import { getTasks } from './services/taskApi';
 import type { Task } from './types';
@@ -27,7 +30,10 @@ export default function App() {
       {page === 'c-workstation' && <CWorkstation    tasks={tasks} />}
       {page === 'a-workstation' && <AWorkstation    tasks={tasks} />}
       {page === 'vera-review'   && <VeraReview      tasks={tasks} />}
-      {page === 'publish-queue' && <PublishQueue    tasks={tasks} />}
+      {page === 'publish-queue' && <PublishQueue />}
+      {page === 'distribution-export' && <DistributionExport />}
+      {page === 'manual-metrics' && <ManualMetricsInput />}
+      {page === 'weekly-report' && <WeeklyReport />}
       {page === 'rules-page'    && <RulesPage />}
     </Layout>
   );
