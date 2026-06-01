@@ -21,18 +21,18 @@ function CompletionRing({ completed, total }: { completed: number; total: number
   return (
     <div className="flex flex-col items-center justify-center">
       <svg width="120" height="120" viewBox="0 0 120 120" className="-rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="#302e27" strokeWidth="10" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke="#28251F" strokeWidth="10" />
         <circle
           cx="60" cy="60" r={r} fill="none"
-          stroke="#D4AF37" strokeWidth="10"
+          stroke="#B89A5E" strokeWidth="10"
           strokeDasharray={circ} strokeDashoffset={offset}
           strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.5s ease' }}
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-3xl font-black text-gold-400">{pct}%</span>
-        <span className="text-[10px] text-surface-500 -mt-0.5">完成率</span>
+        <span className="text-3xl font-black" style={{ color: '#D6C08B' }}>{pct}%</span>
+        <span className="text-[10px] -mt-0.5" style={{ color: '#7D766C' }}>完成率</span>
       </div>
     </div>
   );
@@ -41,74 +41,74 @@ function CompletionRing({ completed, total }: { completed: number; total: number
 // ── Progress bar row ─────────────────────────────────────────────────────────
 
 type BarAccent = 'gold' | 'blue' | 'cyan' | 'emerald' | 'amber' | 'orange' | 'red';
-const BAR_BG: Record<BarAccent, string> = {
-  gold:    'bg-gold-400',
-  blue:    'bg-blue-400',
-  cyan:    'bg-cyan-400',
-  emerald: 'bg-emerald-400',
-  amber:   'bg-amber-400',
-  orange:  'bg-orange-400',
-  red:     'bg-red-400',
-};
-const BAR_TEXT: Record<BarAccent, string> = {
-  gold:    'text-gold-400',
-  blue:    'text-blue-400',
-  cyan:    'text-cyan-400',
-  emerald: 'text-emerald-400',
-  amber:   'text-amber-400',
-  orange:  'text-orange-400',
-  red:     'text-red-400',
+
+// Soft semantic colors — all de-saturated vs. original palette
+const BAR_COLOR: Record<BarAccent, string> = {
+  gold:    '#B89A5E',
+  blue:    '#6FA8DC',
+  cyan:    '#5BAE82',   // use success-green for cyan slots (cyan was too vivid)
+  emerald: '#5BAE82',
+  amber:   '#D0A85C',
+  orange:  '#C4895A',
+  red:     '#C96B6B',
 };
 
 function ProgressRow({ label, done, total, accent, extra }: { label: string; done: number; total: number; accent: BarAccent; extra?: string }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const color = BAR_COLOR[accent];
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-surface-300 w-28 flex-shrink-0 truncate">{label}</span>
-      <div className="flex-1 h-1.5 bg-surface-700 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${BAR_BG[accent]}`} style={{ width: `${pct}%`, transition: 'width 0.4s ease' }} />
+      <span className="text-xs w-28 flex-shrink-0 truncate" style={{ color: '#D8D1C3' }}>{label}</span>
+      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color, transition: 'width 0.4s ease' }} />
       </div>
-      <span className={`text-xs font-semibold w-8 text-right ${BAR_TEXT[accent]}`}>{pct}%</span>
-      <span className="text-[10px] text-surface-600 w-10 text-right flex-shrink-0">{done}/{total}</span>
-      {extra && <span className="text-[10px] text-red-400 w-12 text-right flex-shrink-0">{extra}</span>}
+      <span className="text-xs font-semibold w-8 text-right" style={{ color }}>{pct}%</span>
+      <span className="text-[10px] w-10 text-right flex-shrink-0" style={{ color: '#5F5A52' }}>{done}/{total}</span>
+      {extra && <span className="text-[10px] w-12 text-right flex-shrink-0" style={{ color: '#C96B6B' }}>{extra}</span>}
     </div>
   );
 }
 
 // ── Quick stat box ────────────────────────────────────────────────────────────
 
-function QuickStat({ label, value, sub, icon, accent }: { label: string; value: string | number; sub?: string; icon: React.ReactNode; accent: 'red' | 'gold' | 'orange' | 'emerald' | 'surface' }) {
-  const styles = {
-    red:     'text-red-400 bg-red-500/10 border-red-500/20',
-    gold:    'text-gold-400 bg-gold-400/10 border-gold-500/20',
-    orange:  'text-orange-400 bg-orange-500/10 border-orange-500/20',
-    emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-    surface: 'text-surface-300 bg-surface-800 border-surface-700',
-  };
-  const s = styles[accent];
+type StatAccent = 'red' | 'gold' | 'orange' | 'emerald' | 'surface';
+
+const STAT_STYLES: Record<StatAccent, { color: string; bg: string; border: string }> = {
+  red:     { color: '#C96B6B', bg: 'rgba(201,107,107,0.08)',  border: 'rgba(201,107,107,0.20)' },
+  gold:    { color: '#D6C08B', bg: 'rgba(184,154,94,0.10)',   border: 'rgba(184,154,94,0.22)'  },
+  orange:  { color: '#C4895A', bg: 'rgba(196,137,90,0.10)',   border: 'rgba(196,137,90,0.22)'  },
+  emerald: { color: '#5BAE82', bg: 'rgba(91,174,130,0.10)',   border: 'rgba(91,174,130,0.22)'  },
+  surface: { color: '#D8D1C3', bg: '#28251F',                 border: 'rgba(214,192,139,0.10)' },
+};
+
+function QuickStat({ label, value, sub, icon, accent }: { label: string; value: string | number; sub?: string; icon: React.ReactNode; accent: StatAccent }) {
+  const s = STAT_STYLES[accent];
   return (
-    <div className={`card p-3 border ${s.split(' ').slice(1).join(' ')}`}>
+    <div
+      className="card p-3"
+      style={{ backgroundColor: s.bg, borderColor: s.border }}
+    >
       <div className="flex items-center gap-1.5 mb-1">
-        <span className={s.split(' ')[0]}>{icon}</span>
-        <span className="text-[9px] uppercase tracking-widest text-surface-500">{label}</span>
+        <span style={{ color: s.color }}>{icon}</span>
+        <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>{label}</span>
       </div>
-      <p className={`text-xl font-bold ${s.split(' ')[0]}`}>{value}</p>
-      {sub && <p className="text-[10px] text-surface-600 mt-0.5">{sub}</p>}
+      <p className="text-xl font-bold" style={{ color: s.color }}>{value}</p>
+      {sub && <p className="text-[10px] mt-0.5" style={{ color: '#5F5A52' }}>{sub}</p>}
     </div>
   );
 }
 
 // ── Kanban ────────────────────────────────────────────────────────────────────
 
-interface KanbanColumn { label: string; statuses: TaskStatus[]; accent: string; headerBorder: string }
+interface KanbanColumn { label: string; statuses: TaskStatus[]; color: string }
 const KANBAN_COLUMNS: KanbanColumn[] = [
-  { label: 'AI待生成',   statuses: ['01_AI待生成'],                  accent: 'text-surface-400',  headerBorder: 'border-surface-600'    },
-  { label: '小S待审核',  statuses: ['02_小S待审核', '05_小S待终审'],  accent: 'text-blue-400',     headerBorder: 'border-blue-600/50'    },
-  { label: '小C待确认',  statuses: ['03_小C待确认URL'],               accent: 'text-cyan-400',     headerBorder: 'border-cyan-600/50'    },
-  { label: '小M待剪辑',  statuses: ['04_小M待剪辑'],                  accent: 'text-amber-400',    headerBorder: 'border-amber-600/50'   },
-  { label: 'Vera待审核', statuses: ['06_Vera待审核'],                 accent: 'text-gold-400',     headerBorder: 'border-gold-500/50'    },
-  { label: '待发布',     statuses: ['07_待发布'],                     accent: 'text-lime-400',     headerBorder: 'border-lime-600/50'    },
-  { label: '已完成',     statuses: ['08_已发布', '09_数据待复盘', '10_已完成'], accent: 'text-emerald-400', headerBorder: 'border-emerald-600/50' },
+  { label: 'AI待生成',   statuses: ['01_AI待生成'],                           color: '#7D766C' },
+  { label: '小S待审核',  statuses: ['02_小S待审核', '05_小S待终审'],          color: '#6FA8DC' },
+  { label: '小C待确认',  statuses: ['03_小C待确认URL'],                        color: '#5BAE82' },
+  { label: '小M待剪辑',  statuses: ['04_小M待剪辑'],                           color: '#D0A85C' },
+  { label: 'Vera待审核', statuses: ['06_Vera待审核'],                          color: '#B89A5E' },
+  { label: '待发布',     statuses: ['07_待发布'],                              color: '#7DC4A0' },
+  { label: '已完成',     statuses: ['08_已发布', '09_数据待复盘', '10_已完成'], color: '#5BAE82' },
 ];
 
 // ── Role config ───────────────────────────────────────────────────────────────
@@ -236,8 +236,8 @@ export function Dashboard({ tasks }: DashboardProps) {
 
       {/* ── HERO: Completion + Critical Stats ───────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest mb-3">完成度总览</h2>
-        <div className="card border border-surface-700 p-4 md:p-5">
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#7D766C' }}>完成度总览</h2>
+        <div className="card p-4 md:p-5">
           <div className="flex flex-col sm:flex-row gap-5 items-center">
             {/* Ring */}
             <div className="relative flex-shrink-0">
@@ -255,19 +255,19 @@ export function Dashboard({ tasks }: DashboardProps) {
 
           {/* Progress total bar */}
           <div className="mt-4">
-            <div className="flex justify-between text-[10px] text-surface-500 mb-1">
+            <div className="flex justify-between text-[10px] mb-1" style={{ color: '#7D766C' }}>
               <span>进度</span>
               <span>{stats.completed} / {stats.total} 已完成 · {stats.inProgress} 进行中 · {stats.blocked} 阻塞</span>
             </div>
-            <div className="h-2 bg-surface-700 rounded-full overflow-hidden flex">
-              <div className="h-full bg-emerald-400 rounded-l-full" style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`, transition: 'width 0.4s ease' }} />
-              <div className="h-full bg-blue-500/60" style={{ width: `${stats.total > 0 ? (stats.inProgress / stats.total) * 100 : 0}%` }} />
-              <div className="h-full bg-red-500/60" style={{ width: `${stats.total > 0 ? (stats.blocked / stats.total) * 100 : 0}%` }} />
+            <div className="h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
+              <div className="h-full rounded-l-full" style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`, backgroundColor: '#5BAE82', transition: 'width 0.4s ease' }} />
+              <div className="h-full" style={{ width: `${stats.total > 0 ? (stats.inProgress / stats.total) * 100 : 0}%`, backgroundColor: 'rgba(111,168,220,0.55)' }} />
+              <div className="h-full" style={{ width: `${stats.total > 0 ? (stats.blocked / stats.total) * 100 : 0}%`, backgroundColor: 'rgba(201,107,107,0.55)' }} />
             </div>
             <div className="flex gap-4 mt-1.5">
-              <span className="flex items-center gap-1 text-[9px] text-surface-500"><span className="w-2 h-1.5 rounded-full bg-emerald-400 inline-block" />已完成</span>
-              <span className="flex items-center gap-1 text-[9px] text-surface-500"><span className="w-2 h-1.5 rounded-full bg-blue-500/60 inline-block" />进行中</span>
-              <span className="flex items-center gap-1 text-[9px] text-surface-500"><span className="w-2 h-1.5 rounded-full bg-red-500/60 inline-block" />阻塞</span>
+              <span className="flex items-center gap-1 text-[9px]" style={{ color: '#7D766C' }}><span className="w-2 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#5BAE82' }} />已完成</span>
+              <span className="flex items-center gap-1 text-[9px]" style={{ color: '#7D766C' }}><span className="w-2 h-1.5 rounded-full inline-block" style={{ backgroundColor: 'rgba(111,168,220,0.55)' }} />进行中</span>
+              <span className="flex items-center gap-1 text-[9px]" style={{ color: '#7D766C' }}><span className="w-2 h-1.5 rounded-full inline-block" style={{ backgroundColor: 'rgba(201,107,107,0.55)' }} />阻塞</span>
             </div>
           </div>
         </div>
@@ -276,8 +276,8 @@ export function Dashboard({ tasks }: DashboardProps) {
       {/* ── Role + Website Completion ──────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Role completion */}
-        <div className="card border border-surface-700 p-4">
-          <h3 className="text-[10px] font-semibold text-surface-400 uppercase tracking-widest mb-3">按角色完成度</h3>
+        <div className="card p-4">
+          <h3 className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#7D766C' }}>按角色完成度</h3>
           <div className="space-y-2.5">
             {ROLES.map(({ label, accent }, i) => {
               const rs = roleStats[i];
@@ -296,10 +296,10 @@ export function Dashboard({ tasks }: DashboardProps) {
         </div>
 
         {/* Website completion */}
-        <div className="card border border-surface-700 p-4">
-          <h3 className="text-[10px] font-semibold text-surface-400 uppercase tracking-widest mb-3">
+        <div className="card p-4">
+          <h3 className="text-[10px] font-semibold uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: '#7D766C' }}>
             按网站完成度
-            {worstSite !== '--' && <span className="ml-2 text-red-400 normal-case font-normal">落后：{worstSite}</span>}
+            {worstSite !== '--' && <span className="normal-case font-normal" style={{ color: '#C96B6B' }}>落后：{worstSite}</span>}
           </h3>
           <div className="space-y-2.5">
             {websiteStats.map(({ site, total, done, overdue }) => (
@@ -317,8 +317,8 @@ export function Dashboard({ tasks }: DashboardProps) {
       </div>
 
       {/* ── Content Type Completion ──────────────────────────────────────── */}
-      <div className="card border border-surface-700 p-4">
-        <h3 className="text-[10px] font-semibold text-surface-400 uppercase tracking-widest mb-3">按内容类型完成度</h3>
+      <div className="card p-4">
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#7D766C' }}>按内容类型完成度</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {contentTypeStats.filter((c) => c.total > 0).map(({ type, done, total }) => {
             const ct = CONTENT_TYPES.find((c) => c.type === type);
@@ -329,206 +329,206 @@ export function Dashboard({ tasks }: DashboardProps) {
 
       {/* ── Ad Efficiency Module ─────────────────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest mb-3">广告效率概览</h2>
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#7D766C' }}>广告效率概览</h2>
 
         {/* Primary metrics row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-          <div className="card p-3 border border-orange-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(196,137,90,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <DollarSign size={12} className="text-orange-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">本周花费</span>
+              <DollarSign size={12} style={{ color: '#C4895A' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>本周花费</span>
             </div>
-            <p className="text-xl font-bold text-orange-400">${stats.totalSpent.toLocaleString()}</p>
+            <p className="text-xl font-bold" style={{ color: '#C4895A' }}>${stats.totalSpent.toLocaleString()}</p>
           </div>
-          <div className="card p-3 border border-blue-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(111,168,220,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <MousePointer size={12} className="text-blue-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">本周点击</span>
+              <MousePointer size={12} style={{ color: '#6FA8DC' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>本周点击</span>
             </div>
-            <p className="text-xl font-bold text-blue-400">{stats.totalClicks.toLocaleString()}</p>
+            <p className="text-xl font-bold" style={{ color: '#6FA8DC' }}>{stats.totalClicks.toLocaleString()}</p>
           </div>
-          <div className="card p-3 border border-emerald-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(91,174,130,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <MessageSquare size={12} className="text-emerald-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">有效询盘</span>
+              <MessageSquare size={12} style={{ color: '#5BAE82' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>有效询盘</span>
             </div>
-            <p className="text-xl font-bold text-emerald-400">{stats.totalValidInquiries || stats.totalInquiries}</p>
+            <p className="text-xl font-bold" style={{ color: '#5BAE82' }}>{stats.totalValidInquiries || stats.totalInquiries}</p>
           </div>
-          <div className="card p-3 border border-gold-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(184,154,94,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <TrendingDown size={12} className="text-gold-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">平均CPL</span>
+              <TrendingDown size={12} style={{ color: '#D6C08B' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>平均CPL</span>
             </div>
-            <p className="text-xl font-bold text-gold-400">{stats.avgCpl > 0 ? `$${stats.avgCpl}` : '--'}</p>
+            <p className="text-xl font-bold" style={{ color: '#D6C08B' }}>{stats.avgCpl > 0 ? `$${stats.avgCpl}` : '--'}</p>
           </div>
         </div>
 
         {/* Secondary metrics row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-          <div className="card p-3 border border-cyan-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(111,168,220,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <Eye size={12} className="text-cyan-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">视频观看量</span>
+              <Eye size={12} style={{ color: '#87B8E0' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>视频观看量</span>
             </div>
-            <p className="text-xl font-bold text-cyan-400">{stats.totalViews > 0 ? stats.totalViews.toLocaleString() : '--'}</p>
+            <p className="text-xl font-bold" style={{ color: '#87B8E0' }}>{stats.totalViews > 0 ? stats.totalViews.toLocaleString() : '--'}</p>
           </div>
-          <div className="card p-3 border border-emerald-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(91,174,130,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <MessageSquare size={12} className="text-emerald-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">WhatsApp点击</span>
+              <MessageSquare size={12} style={{ color: '#5BAE82' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>WhatsApp点击</span>
             </div>
-            <p className="text-xl font-bold text-emerald-400">{stats.totalWA > 0 ? stats.totalWA : '--'}</p>
+            <p className="text-xl font-bold" style={{ color: '#5BAE82' }}>{stats.totalWA > 0 ? stats.totalWA : '--'}</p>
           </div>
-          <div className="card p-3 border border-blue-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(111,168,220,0.18)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <Users size={12} className="text-blue-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">表单提交</span>
+              <Users size={12} style={{ color: '#6FA8DC' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>表单提交</span>
             </div>
-            <p className="text-xl font-bold text-blue-400">{stats.totalForms > 0 ? stats.totalForms : '--'}</p>
+            <p className="text-xl font-bold" style={{ color: '#6FA8DC' }}>{stats.totalForms > 0 ? stats.totalForms : '--'}</p>
           </div>
-          <div className="card p-3 border border-gold-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(184,154,94,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <CreditCard size={12} className="text-gold-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">待Vera确认预算</span>
+              <CreditCard size={12} style={{ color: '#B89A5E' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>待Vera确认预算</span>
             </div>
-            <p className="text-xl font-bold text-gold-400">{stats.budgetPending}</p>
-            <p className="text-[10px] text-surface-600">{stats.budgetPending > 0 ? '需要审批' : '暂无申请'}</p>
+            <p className="text-xl font-bold" style={{ color: '#B89A5E' }}>{stats.budgetPending}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#5F5A52' }}>{stats.budgetPending > 0 ? '需要审批' : '暂无申请'}</p>
           </div>
         </div>
 
         {/* Best / Worst / Needs Action */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Best Ad */}
-          <div className="card p-3 border border-emerald-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(91,174,130,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-2">
-              <TrendingUp size={11} className="text-emerald-400" />
-              <p className="text-[9px] uppercase tracking-widest text-surface-500">最佳广告</p>
+              <TrendingUp size={11} style={{ color: '#5BAE82' }} />
+              <p className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>最佳广告</p>
             </div>
             {stats.bestPageAd ? (
               <>
-                <p className="text-xs text-emerald-300 font-medium leading-snug">{stats.bestPageAd.adPlatform}</p>
-                <p className="text-[10px] text-surface-400 mt-0.5">{stats.bestPageAd.website.replace('.com','').replace('.ru','')}</p>
-                <p className="text-[10px] text-emerald-400/80 mt-1">{stats.bestPageAd.validInquiries || stats.bestPageAd.inquiries || 0} 有效询盘 · CPL ${stats.bestPageAd.cpl || '--'}</p>
+                <p className="text-xs font-medium leading-snug" style={{ color: '#7DC4A0' }}>{stats.bestPageAd.adPlatform}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: '#A8A094' }}>{stats.bestPageAd.website.replace('.com','').replace('.ru','')}</p>
+                <p className="text-[10px] mt-1" style={{ color: '#5BAE82' }}>{stats.bestPageAd.validInquiries || stats.bestPageAd.inquiries || 0} 有效询盘 · CPL ${stats.bestPageAd.cpl || '--'}</p>
               </>
-            ) : <p className="text-xs text-surface-600">暂无数据</p>}
+            ) : <p className="text-xs" style={{ color: '#5F5A52' }}>暂无数据</p>}
           </div>
 
           {/* Worst Ad */}
-          <div className="card p-3 border border-red-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(201,107,107,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-2">
-              <TrendingDown size={11} className="text-[#e88989]" />
-              <p className="text-[9px] uppercase tracking-widest text-surface-500">最差广告</p>
+              <TrendingDown size={11} style={{ color: '#C96B6B' }} />
+              <p className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>最差广告</p>
             </div>
             {stats.worstAd ? (
               <>
-                <p className="text-xs text-[#e88989] font-medium leading-snug">{stats.worstAd.adPlatform}</p>
-                <p className="text-[10px] text-surface-400 mt-0.5">{stats.worstAd.website.replace('.com','').replace('.ru','')}</p>
-                <p className="text-[10px] text-red-400/80 mt-1">CPL ${stats.worstAd.cpl} · 需优化</p>
+                <p className="text-xs font-medium leading-snug" style={{ color: '#D88888' }}>{stats.worstAd.adPlatform}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: '#A8A094' }}>{stats.worstAd.website.replace('.com','').replace('.ru','')}</p>
+                <p className="text-[10px] mt-1" style={{ color: '#C96B6B' }}>CPL ${stats.worstAd.cpl} · 需优化</p>
               </>
-            ) : <p className="text-xs text-surface-600">暂无数据</p>}
+            ) : <p className="text-xs" style={{ color: '#5F5A52' }}>暂无数据</p>}
           </div>
 
           {/* Needs pause / optimize */}
-          <div className="card p-3 border border-amber-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(208,168,92,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-2">
-              <PauseCircle size={11} className="text-amber-400" />
-              <p className="text-[9px] uppercase tracking-widest text-surface-500">需关注</p>
+              <PauseCircle size={11} style={{ color: '#D0A85C' }} />
+              <p className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>需关注</p>
             </div>
             {stats.needOptimize.length > 0 ? (
               <div className="space-y-1">
                 {stats.needOptimize.slice(0, 2).map((t) => (
-                  <p key={t.id} className="text-[10px] text-amber-300">{t.adPlatform} · 需优化</p>
+                  <p key={t.id} className="text-[10px]" style={{ color: '#D0A85C' }}>{t.adPlatform} · 需优化</p>
                 ))}
               </div>
             ) : null}
             {stats.pausedAds.length > 0 ? (
               <div className="space-y-1 mt-1">
                 {stats.pausedAds.slice(0, 1).map((t) => (
-                  <p key={t.id} className="text-[10px] text-surface-400">{t.adPlatform} · 已暂停</p>
+                  <p key={t.id} className="text-[10px]" style={{ color: '#A8A094' }}>{t.adPlatform} · 已暂停</p>
                 ))}
               </div>
             ) : null}
             {stats.needOptimize.length === 0 && stats.pausedAds.length === 0 && (
-              <p className="text-xs text-surface-600">广告运行正常</p>
+              <p className="text-xs" style={{ color: '#5F5A52' }}>广告运行正常</p>
             )}
           </div>
 
           {/* Scale candidates */}
-          <div className="card p-3 border border-emerald-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(91,174,130,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-2">
-              <Activity size={11} className="text-emerald-400" />
-              <p className="text-[9px] uppercase tracking-widest text-surface-500">放大候选</p>
+              <Activity size={11} style={{ color: '#5BAE82' }} />
+              <p className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>放大候选</p>
             </div>
             {stats.scaleAds.length > 0 ? (
               <div className="space-y-1">
                 {stats.scaleAds.slice(0, 2).map((t) => (
-                  <p key={t.id} className="text-[10px] text-emerald-300">{t.adPlatform} · {t.website.replace('.com','').replace('.ru','')}</p>
+                  <p key={t.id} className="text-[10px]" style={{ color: '#7DC4A0' }}>{t.adPlatform} · {t.website.replace('.com','').replace('.ru','')}</p>
                 ))}
-                {stats.scaleAds.length > 2 && <p className="text-[10px] text-surface-500">+{stats.scaleAds.length - 2} 更多</p>}
+                {stats.scaleAds.length > 2 && <p className="text-[10px]" style={{ color: '#7D766C' }}>+{stats.scaleAds.length - 2} 更多</p>}
               </div>
-            ) : <p className="text-xs text-surface-600">暂无候选</p>}
+            ) : <p className="text-xs" style={{ color: '#5F5A52' }}>暂无候选</p>}
           </div>
         </div>
       </div>
 
       {/* ── AI Automation Metrics ──────────────────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest mb-3">AI自动化指标</h2>
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#7D766C' }}>AI自动化指标</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-          <div className="card p-3 border border-emerald-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(91,174,130,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <Zap size={12} className="text-emerald-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">自动放行率</span>
+              <Zap size={12} style={{ color: '#5BAE82' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>自动放行率</span>
             </div>
-            <p className="text-xl font-bold text-emerald-400">{stats.autoApproveRate}%</p>
-            <p className="text-[10px] text-surface-600">{stats.autoApproved} 条任务</p>
+            <p className="text-xl font-bold" style={{ color: '#5BAE82' }}>{stats.autoApproveRate}%</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#5F5A52' }}>{stats.autoApproved} 条任务</p>
           </div>
-          <div className="card p-3 border border-red-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(201,107,107,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <XCircle size={12} className="text-[#e88989]" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">高风险拦截率</span>
+              <XCircle size={12} style={{ color: '#C96B6B' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>高风险拦截率</span>
             </div>
-            <p className="text-xl font-bold text-[#e88989]">{stats.interceptRate}%</p>
-            <p className="text-[10px] text-surface-600">{stats.intercepted} 条拦截</p>
+            <p className="text-xl font-bold" style={{ color: '#C96B6B' }}>{stats.interceptRate}%</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#5F5A52' }}>{stats.intercepted} 条拦截</p>
           </div>
-          <div className="card p-3 border border-gold-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(184,154,94,0.22)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <ShieldCheck size={12} className="text-gold-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">Vera待处理</span>
+              <ShieldCheck size={12} style={{ color: '#D6C08B' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>Vera待处理</span>
             </div>
-            <p className="text-xl font-bold text-gold-400">{stats.veraPending}</p>
-            <p className="text-[10px] text-surface-600">含 {stats.budgetPending} 条预算</p>
+            <p className="text-xl font-bold" style={{ color: '#D6C08B' }}>{stats.veraPending}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#5F5A52' }}>含 {stats.budgetPending} 条预算</p>
           </div>
-          <div className="card p-3 border border-blue-500/20">
+          <div className="card p-3" style={{ borderColor: 'rgba(111,168,220,0.20)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <Bot size={12} className="text-blue-400" />
-              <span className="text-[9px] uppercase tracking-widest text-surface-500">AI生成任务</span>
+              <Bot size={12} style={{ color: '#6FA8DC' }} />
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#7D766C' }}>AI生成任务</span>
             </div>
-            <p className="text-xl font-bold text-blue-400">{tasks.filter((t) => t.status === '01_AI待生成' || t.opLog?.some((l) => l.operator === '龙虾')).length}</p>
-            <p className="text-[10px] text-surface-600">龙虾AI助理</p>
+            <p className="text-xl font-bold" style={{ color: '#6FA8DC' }}>{tasks.filter((t) => t.status === '01_AI待生成' || t.opLog?.some((l) => l.operator === '龙虾')).length}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#5F5A52' }}>龙虾AI助理</p>
           </div>
         </div>
 
         {/* Risk distribution */}
-        <div className="card border border-surface-700 p-4">
-          <h3 className="text-[10px] font-semibold text-surface-400 uppercase tracking-widest mb-3">风险等级分布</h3>
+        <div className="card p-4">
+          <h3 className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#7D766C' }}>风险等级分布</h3>
           <div className="space-y-2">
             {(['低', '中', '高'] as RiskLevel[]).map((level) => {
               const count = stats.riskDist[level];
               const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
-              const barColor = level === '低' ? 'bg-emerald-500' : level === '中' ? 'bg-amber-500' : 'bg-red-500';
-              const textColor = level === '低' ? 'text-emerald-300' : level === '中' ? 'text-amber-300' : 'text-[#e88989]';
+              const barColor = level === '低' ? '#5BAE82' : level === '中' ? '#D0A85C' : '#C96B6B';
+              const textColor = level === '低' ? '#5BAE82' : level === '中' ? '#D0A85C' : '#C96B6B';
               return (
                 <div key={level} className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5 w-16 flex-shrink-0">
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${RISK_LEVEL_DOT[level]}`} />
-                    <span className={`text-xs font-medium ${textColor}`}>{level}风险</span>
+                    <span className="text-xs font-medium" style={{ color: textColor }}>{level}风险</span>
                   </div>
-                  <div className="flex-1 h-1.5 bg-surface-700 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%`, transition: 'width 0.4s ease' }} />
+                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: barColor, transition: 'width 0.4s ease' }} />
                   </div>
-                  <span className={`text-xs font-semibold w-8 text-right ${textColor}`}>{pct}%</span>
-                  <span className="text-[10px] text-surface-600 w-10 text-right flex-shrink-0">{count}/{stats.total}</span>
+                  <span className="text-xs font-semibold w-8 text-right" style={{ color: textColor }}>{pct}%</span>
+                  <span className="text-[10px] w-10 text-right flex-shrink-0" style={{ color: '#5F5A52' }}>{count}/{stats.total}</span>
                 </div>
               );
             })}
@@ -539,17 +539,23 @@ export function Dashboard({ tasks }: DashboardProps) {
       {/* ── Kanban ──────────────────────────────────────────────────────── */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest">任务看板</h2>
-          <span className="text-[10px] text-surface-600">共 {tasks.length} 条</span>
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#7D766C' }}>任务看板</h2>
+          <span className="text-[10px]" style={{ color: '#5F5A52' }}>共 {tasks.length} 条</span>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-7">
           {KANBAN_COLUMNS.map((col) => {
             const colTasks = kanbanMap[col.label] || [];
             return (
               <div key={col.label} className="flex-shrink-0 w-52 md:w-auto flex flex-col">
-                <div className={`flex items-center justify-between px-2 py-1.5 mb-2 border-b ${col.headerBorder}`}>
-                  <span className={`text-xs font-semibold ${col.accent}`}>{col.label}</span>
-                  <span className={`text-[10px] font-bold ${col.accent} bg-surface-800 rounded-full w-5 h-5 flex items-center justify-center`}>
+                <div
+                  className="flex items-center justify-between px-2 py-1.5 mb-2 border-b"
+                  style={{ borderColor: `${col.color}30` }}
+                >
+                  <span className="text-xs font-semibold" style={{ color: col.color }}>{col.label}</span>
+                  <span
+                    className="text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                    style={{ color: col.color, backgroundColor: `${col.color}15` }}
+                  >
                     {colTasks.length}
                   </span>
                 </div>
@@ -558,10 +564,13 @@ export function Dashboard({ tasks }: DashboardProps) {
                     <TaskCard key={task.id} task={task} onClick={setSelectedTask} compact />
                   ))}
                   {colTasks.length > 4 && (
-                    <div className="text-[10px] text-surface-500 text-center py-1">+{colTasks.length - 4} 更多</div>
+                    <div className="text-[10px] text-center py-1" style={{ color: '#7D766C' }}>+{colTasks.length - 4} 更多</div>
                   )}
                   {colTasks.length === 0 && (
-                    <div className="text-[10px] text-surface-700 text-center py-4 border border-dashed border-surface-800 rounded">暂无</div>
+                    <div
+                      className="text-[10px] text-center py-4 rounded border border-dashed"
+                      style={{ color: '#3A3730', borderColor: '#28251F' }}
+                    >暂无</div>
                   )}
                 </div>
               </div>
@@ -576,7 +585,10 @@ export function Dashboard({ tasks }: DashboardProps) {
         if (!paused.length) return null;
         return (
           <div>
-            <h2 className="text-[10px] font-semibold text-red-400/70 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <h2
+              className="text-[10px] font-semibold uppercase tracking-widest mb-3 flex items-center gap-1.5"
+              style={{ color: 'rgba(201,107,107,0.70)' }}
+            >
               <Clock size={11} />暂停 / 返工 ({paused.length})
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

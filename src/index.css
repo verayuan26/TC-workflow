@@ -2,87 +2,118 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ────────────────────────────────────────────────────────────────────────────
+   TC Workflow — 黑金轻奢弱化版 Theme
+   All design tokens live here and in tailwind.config.js:
+     - CSS custom properties: colors, borders, shadows
+     - Component classes: .card, .btn-*, .overdue-pulse
+   ────────────────────────────────────────────────────────────────────────── */
+
 @layer base {
   html {
     @apply antialiased;
   }
+
   body {
-    /* Warm charcoal — easier on eyes during long sessions */
-    background-color: #181816;
-    color: #c8c1ae;
+    /* Warm dark, not pure black — easier on eyes during long sessions */
+    background-color: #141414;
+    color: #D8D1C3;
   }
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #1e1d1a;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #3c3a31;
-    border-radius: 9999px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #5a5749;
+
+  /* ── Scrollbar ────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track  { background: #1C1A17; }
+  ::-webkit-scrollbar-thumb  { background: #3A3730; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #5F5A52; }
+
+  /* ── Status colors (semantic) ─────────────────────────────────────────
+     These CSS vars are the single source of truth for status hues.
+     Low-saturation, office-friendly palette.
+  ────────────────────────────────────────────────────────────────────── */
+  :root {
+    --color-success:  #5BAE82;   /* done / success */
+    --color-info:     #6FA8DC;   /* in-progress / info */
+    --color-warning:  #D0A85C;   /* pending / caution */
+    --color-danger:   #C96B6B;   /* blocked / risk */
+    --color-review:   #9A86D9;   /* review / pending confirm */
+
+    --color-gold:     #B89A5E;
+    --color-gold-lt:  #D6C08B;
+    --color-gold-bg:  rgba(184, 154, 94, 0.12);
+    --color-gold-border: rgba(184, 154, 94, 0.26);
+
+    --border-card:    rgba(214, 192, 139, 0.10);
+    --border-divider: rgba(255, 255, 255, 0.06);
   }
 }
 
 @layer components {
-  /* Card: warm dark, subtle gold-tinted border */
+  /* ── Card ─────────────────────────────────────────────────────────────── */
   .card {
-    background-color: #252420;
-    border: 1px solid rgba(212, 175, 55, 0.12);
-    border-radius: 0.5rem;
+    background-color: #211F1B;
+    border: 1px solid rgba(214, 192, 139, 0.10);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
   }
 
-  /* Hover state: slightly lighter warm dark + soft gold border */
   .card-hover {
     @apply transition-all duration-200 cursor-pointer;
   }
   .card-hover:hover {
-    background-color: #2d2b25;
-    border-color: rgba(212, 175, 55, 0.28);
+    background-color: #28251F;
+    border-color: rgba(184, 154, 94, 0.22);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
   }
 
   .gold-border {
-    border: 1px solid rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(184, 154, 94, 0.22);
   }
 
-  /* Buttons */
+  /* ── Buttons ──────────────────────────────────────────────────────────── */
+
+  /* Primary — champagne gold, dark text */
   .btn-gold {
-    @apply bg-gold-400 text-surface-950 text-xs font-semibold px-3 py-1.5 rounded transition-colors duration-150 disabled:opacity-50;
+    @apply text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-150 disabled:opacity-40;
+    background-color: #B89A5E;
+    color: #141414;
   }
   .btn-gold:hover {
-    background-color: #c9a530;
+    background-color: #C9AD72;
+    box-shadow: 0 2px 8px rgba(184, 154, 94, 0.20);
   }
 
+  /* Secondary ghost */
   .btn-ghost {
-    @apply text-xs font-medium px-3 py-1.5 rounded transition-colors duration-150;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #a09a8c;
+    @apply text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-150;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(214, 192, 139, 0.16);
+    color: #D8D1C3;
   }
   .btn-ghost:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #ede5cc;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(214, 192, 139, 0.28);
+    color: #F4EFE4;
   }
 
-  /* Softer danger — wine red instead of bright red */
+  /* Danger — muted wine-red */
   .btn-danger {
-    @apply text-xs font-medium px-3 py-1.5 rounded transition-colors duration-150;
-    border: 1px solid rgba(180, 70, 70, 0.35);
-    color: #e88989;
+    @apply text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-150;
+    background-color: rgba(201, 107, 107, 0.10);
+    border: 1px solid rgba(201, 107, 107, 0.26);
+    color: #E1A0A0;
   }
   .btn-danger:hover {
-    background-color: rgba(180, 70, 70, 0.12);
+    background-color: rgba(201, 107, 107, 0.18);
+    border-color: rgba(201, 107, 107, 0.40);
   }
 
-  /* Overdue pulse — softer animation, wine-red glow */
+  /* ── Overdue pulse — soft, not aggressive ─────────────────────────── */
   .overdue-pulse {
-    animation: overdue-pulse 2.2s ease-in-out infinite;
+    animation: overdue-pulse 2.8s ease-in-out infinite;
   }
 }
 
 @keyframes overdue-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
+  50% { opacity: 0.50; }
 }

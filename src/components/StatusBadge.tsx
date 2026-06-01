@@ -1,42 +1,45 @@
 import type { TaskStatus, Priority } from '../types';
 import { STATUS_LABELS } from '../types';
 
+// ── Status badge styles: low-saturation, office-friendly ─────────────────────
+// Colors correspond to CSS vars: --color-success/info/warning/danger/review
 const STATUS_STYLES: Record<TaskStatus, string> = {
-  '01_AI待生成':    'bg-surface-700 text-surface-300 border-surface-600',
-  '02_小S待审核':   'bg-blue-950 text-blue-300 border-blue-800',
-  '03_小C待确认URL': 'bg-cyan-950 text-cyan-300 border-cyan-800',
-  '04_小M待剪辑':   'bg-amber-950 text-amber-300 border-amber-800',
-  '05_小S待终审':   'bg-blue-900 text-blue-200 border-blue-700',
-  '06_Vera待审核':  'bg-gold-900/30 text-gold-300 border-gold-700/50',
-  '07_待发布':      'bg-lime-950 text-lime-300 border-lime-800',
-  '08_已发布':      'bg-emerald-950 text-emerald-300 border-emerald-800',
-  '09_数据待复盘':  'bg-teal-950 text-teal-300 border-teal-800',
-  '10_已完成':      'bg-surface-800 text-surface-400 border-surface-700',
-  '11_已拦截':      'bg-red-950/80 text-[#e88989] border-red-800/60',
-  '12_自动放行':    'bg-emerald-950/60 text-emerald-300 border-emerald-700/40',
-  '99_暂停/返工':   'bg-red-950 text-red-300 border-red-800',
+  '01_AI待生成':     'bg-surface-800 text-surface-400 border-surface-700',
+  '02_小S待审核':    'bg-[rgba(111,168,220,0.10)] text-[#6FA8DC] border-[rgba(111,168,220,0.25)]',
+  '03_小C待确认URL': 'bg-[rgba(91,174,130,0.10)] text-[#5BAE82] border-[rgba(91,174,130,0.25)]',
+  '04_小M待剪辑':    'bg-[rgba(208,168,92,0.10)] text-[#D0A85C] border-[rgba(208,168,92,0.25)]',
+  '05_小S待终审':    'bg-[rgba(111,168,220,0.14)] text-[#8EC4F0] border-[rgba(111,168,220,0.30)]',
+  '06_Vera待审核':   'bg-[rgba(184,154,94,0.12)] text-[#D6C08B] border-[rgba(184,154,94,0.26)]',
+  '07_待发布':       'bg-[rgba(91,174,130,0.12)] text-[#7DC4A0] border-[rgba(91,174,130,0.28)]',
+  '08_已发布':       'bg-[rgba(91,174,130,0.14)] text-[#5BAE82] border-[rgba(91,174,130,0.30)]',
+  '09_数据待复盘':   'bg-[rgba(111,168,220,0.08)] text-[#87B8E0] border-[rgba(111,168,220,0.20)]',
+  '10_已完成':       'bg-surface-900 text-surface-500 border-surface-700',
+  '11_已拦截':       'bg-[rgba(201,107,107,0.12)] text-[#E1A0A0] border-[rgba(201,107,107,0.28)]',
+  '12_自动放行':     'bg-[rgba(91,174,130,0.10)] text-[#5BAE82] border-[rgba(91,174,130,0.25)]',
+  '99_暂停/返工':    'bg-[rgba(201,107,107,0.10)] text-[#D88888] border-[rgba(201,107,107,0.24)]',
 };
 
 const DOT_STYLES: Record<TaskStatus, string> = {
-  '01_AI待生成':    'bg-surface-400',
-  '02_小S待审核':   'bg-blue-400',
-  '03_小C待确认URL': 'bg-cyan-400',
-  '04_小M待剪辑':   'bg-amber-400',
-  '05_小S待终审':   'bg-blue-300',
-  '06_Vera待审核':  'bg-gold-400',
-  '07_待发布':      'bg-lime-400',
-  '08_已发布':      'bg-emerald-400',
-  '09_数据待复盘':  'bg-teal-400',
-  '10_已完成':      'bg-surface-500',
-  '11_已拦截':      'bg-red-400',
-  '12_自动放行':    'bg-emerald-400',
-  '99_暂停/返工':   'bg-red-400',
+  '01_AI待生成':     'bg-surface-500',
+  '02_小S待审核':    'bg-[#6FA8DC]',
+  '03_小C待确认URL': 'bg-[#5BAE82]',
+  '04_小M待剪辑':    'bg-[#D0A85C]',
+  '05_小S待终审':    'bg-[#8EC4F0]',
+  '06_Vera待审核':   'bg-[#B89A5E]',
+  '07_待发布':       'bg-[#7DC4A0]',
+  '08_已发布':       'bg-[#5BAE82]',
+  '09_数据待复盘':   'bg-[#6FA8DC]',
+  '10_已完成':       'bg-surface-600',
+  '11_已拦截':       'bg-[#C96B6B]',
+  '12_自动放行':     'bg-[#5BAE82]',
+  '99_暂停/返工':    'bg-[#C96B6B]',
 };
 
+// ── Priority badge: low-saturation small capsules ─────────────────────────────
 const PRIORITY_STYLES: Record<Priority, string> = {
-  A: 'bg-gold-400/10 text-gold-400 border-gold-500/30',
-  B: 'bg-blue-400/10 text-blue-400 border-blue-500/30',
-  C: 'bg-surface-700 text-surface-400 border-surface-600',
+  A: 'bg-[rgba(208,168,92,0.14)] text-[#D0A85C] border-[rgba(208,168,92,0.28)]',
+  B: 'bg-[rgba(111,168,220,0.12)] text-[#6FA8DC] border-[rgba(111,168,220,0.25)]',
+  C: 'bg-surface-800 text-surface-500 border-surface-700',
 };
 
 interface StatusBadgeProps {

@@ -4,35 +4,44 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ── Brand gold: low-saturation champagne gold ─────────────────────
         gold: {
-          50:  '#fdf9e4',
-          100: '#f8efbe',
-          200: '#f0dd82',
-          300: '#e5c84a',
-          400: '#d4af37',
-          500: '#b8922e',
-          600: '#9a7826',
-          700: '#7d601f',
-          800: '#604a18',
-          900: '#433312',
+          50:  '#FAF5E8',
+          100: '#F2E8CC',
+          200: '#E5D3A4',
+          300: '#D6C08B',   // light champagne gold
+          400: '#B89A5E',   // main brand gold (softened from #D4AF37)
+          500: '#A08548',   // medium gold-brown
+          600: '#8A6A35',   // deep gold-brown
+          700: '#6F5228',
+          800: '#4F3B1C',
+          900: '#2E2210',
         },
-        // Warm charcoal — the core design token for backgrounds, borders, text
+        // ── Warm charcoal surface palette ─────────────────────────────────
         surface: {
-          50:  '#f7f2e4',  // brightest warm off-white
-          100: '#ede5cc',  // headings, important labels
-          200: '#c8c1ae',  // normal body text
-          300: '#a09a8c',  // secondary text
-          400: '#7a7769',  // muted text
-          500: '#5a5749',  // very muted / disabled
-          600: '#3c3a31',  // subtle elements
-          700: '#302e27',  // borders, dividers
-          800: '#252420',  // card backgrounds
-          900: '#1e1d1a',  // sidebar, panels, header
-          950: '#181816',  // page background (warm charcoal, not pure black)
+          50:  '#F4EFE4',   // main title / brightest warm
+          100: '#E8E0D0',   // headings
+          200: '#D8D1C3',   // body text
+          300: '#C0B8A8',   // secondary text (slightly brighter than before)
+          400: '#A8A094',   // secondary text
+          500: '#7D766C',   // auxiliary / muted text
+          600: '#5F5A52',   // disabled / weakest text
+          700: '#3A3730',   // borders, dividers
+          800: '#28251F',   // secondary card / overlay
+          900: '#211F1B',   // card background
+          950: '#181715',   // sidebar / panels
+          1000:'#141414',   // page background
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      borderRadius: {
+        'card': '14px',
+      },
+      boxShadow: {
+        'card': '0 10px 30px rgba(0, 0, 0, 0.18)',
+        'card-hover': '0 14px 36px rgba(0, 0, 0, 0.24)',
       },
     },
   },
