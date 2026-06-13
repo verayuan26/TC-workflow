@@ -6,10 +6,10 @@ import { FilterBar } from '../components/FilterBar';
 import { TaskModal } from '../components/TaskModal';
 import { filterTasks } from '../services/taskApi';
 
-const S_STATUSES = ['01_AI待生成', '02_小S待审核', '05_小S待终审', '07_待发布', '09_数据待复盘', '99_暂停/返工'];
+const S_STATUSES = ['01_AI_PENDING', '02_STRATEGY_REVIEW', '05_STRATEGY_FINAL', '07_PUBLISH_READY', '09_DATA_REVIEW', '99_REWORK'];
 
 const DEFAULT_FILTERS: FilterState = {
-  assignedTo: '小S', website: 'all', contentType: 'all',
+  assignedTo: 'STRATEGY', website: 'all', contentType: 'all',
   status: 'all', priority: 'all', isOverdue: null, needsVeraReview: null,
 };
 
@@ -21,13 +21,13 @@ export function SWorkstation({ tasks }: SWorkstationProps) {
 
   const sTasks = useMemo(() => {
     const relevant = tasks.filter((t) =>
-      t.assignedTo === '小S' ||
+      t.assignedTo === 'STRATEGY' ||
       (S_STATUSES as string[]).includes(t.status) ||
       t.contentType === 'SEO文章' ||
       t.contentType === '发布文案' ||
       t.contentType === '数据复盘'
     );
-    const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? '小S' : filters.assignedTo };
+    const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? 'STRATEGY' : filters.assignedTo };
     return filterTasks(relevant, applied);
   }, [tasks, filters]);
 
@@ -65,7 +65,7 @@ export function SWorkstation({ tasks }: SWorkstationProps) {
 }
 
 function STaskRow({ task, onClick }: { task: Task; onClick: (t: Task) => void }) {
-  const isPending = task.status === '02_小S待审核' || task.status === '05_小S待终审';
+  const isPending = task.status === '02_STRATEGY_REVIEW' || task.status === '05_STRATEGY_FINAL';
 
   return (
     <div
@@ -136,12 +136,12 @@ function STaskRow({ task, onClick }: { task: Task; onClick: (t: Task) => void })
               </button>
             </div>
           )}
-          {task.status === '01_AI待生成' && (
+          {task.status === '01_AI_PENDING' && (
             <button onClick={(e) => { e.stopPropagation(); onClick(task); }} className="btn-gold">
               提交脚本
             </button>
           )}
-          {!isPending && task.status !== '01_AI待生成' && (
+          {!isPending && task.status !== '01_AI_PENDING' && (
             <button onClick={(e) => { e.stopPropagation(); onClick(task); }} className="btn-ghost">
               查看详情
             </button>

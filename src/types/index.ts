@@ -3,19 +3,19 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type TaskStatus =
-  | '01_AI待生成'
-  | '02_小S待审核'
-  | '03_小C待确认URL'
-  | '04_小M待剪辑'
-  | '05_小S待终审'
-  | '06_Vera待审核'
-  | '07_待发布'
-  | '08_已发布'
-  | '09_数据待复盘'
-  | '10_已完成'
-  | '11_已拦截'     // Phase 4: AI system intercept
-  | '12_自动放行'   // Phase 4: AI auto-approved → queue
-  | '99_暂停/返工';
+  | '01_AI_PENDING'
+  | '02_STRATEGY_REVIEW'
+  | '03_CONVERSION_URL'
+  | '04_MEDIA_EDIT'
+  | '05_STRATEGY_FINAL'
+  | '06_VERA_REVIEW'
+  | '07_PUBLISH_READY'
+  | '08_PUBLISHED'
+  | '09_DATA_REVIEW'
+  | '10_COMPLETED'
+  | '11_BLOCKED'
+  | '12_AUTO_APPROVED'
+  | '99_REWORK';
 
 export type AdStatus =
   | '待建广告'
@@ -57,7 +57,7 @@ export type ContentType =
 export type VideoType = '短视频' | '长视频';
 export type EditLevel = 'A精剪' | 'B标准' | 'C快剪';
 export type Priority = 'A' | 'B' | 'C';
-export type Role = '小M' | '小S' | '小C' | '小A' | 'Vera' | '龙虾';
+export type Role = 'STRATEGY' | 'MEDIA' | 'CONVERSION' | 'ADS' | 'VERA' | 'AI';
 export type RiskLevel = '低' | '中' | '高';
 export type BudgetStatus = 'AI建议预算' | '等待Vera确认预算' | 'Vera已确认预算' | 'Vera拒绝预算';
 
@@ -225,19 +225,19 @@ export interface FilterState {
 // ─── Label maps ────────────────────────────────────────────────────────────
 
 export const STATUS_LABELS: Record<TaskStatus, string> = {
-  '01_AI待生成':    'AI待生成',
-  '02_小S待审核':   '小S待审核',
-  '03_小C待确认URL': '小C待确认',
-  '04_小M待剪辑':   '小M待剪辑',
-  '05_小S待终审':   '小S待终审',
-  '06_Vera待审核':  'Vera待审核',
-  '07_待发布':      '待发布',
-  '08_已发布':      '已发布',
-  '09_数据待复盘':  '数据复盘',
-  '10_已完成':      '已完成',
-  '11_已拦截':      '系统拦截',
-  '12_自动放行':    '自动放行',
-  '99_暂停/返工':   '暂停/返工',
+  '01_AI_PENDING': 'AI待生成',
+  '02_STRATEGY_REVIEW': '策略师待审',
+  '03_CONVERSION_URL': '追踪师待确认',
+  '04_MEDIA_EDIT': '制作师待剪辑',
+  '05_STRATEGY_FINAL': '策略师待终审',
+  '06_VERA_REVIEW': '负责人待审核',
+  '07_PUBLISH_READY': '待发布',
+  '08_PUBLISHED': '已发布',
+  '09_DATA_REVIEW': '数据复盘',
+  '10_COMPLETED': '已完成',
+  '11_BLOCKED': '系统拦截',
+  '12_AUTO_APPROVED': '自动放行',
+  '99_REWORK': '暂停/返工',
 };
 
 export const RISK_LEVEL_STYLES: Record<RiskLevel, string> = {

@@ -11,17 +11,17 @@ const WEBSITE_SHORT: Record<string, string> = {
 };
 
 const LEFT_BORDER: Record<string, string> = {
-  '01_AI待生成':    'border-l-surface-500',
-  '02_小S待审核':   'border-l-blue-500',
-  '03_小C待确认URL': 'border-l-cyan-500',
-  '04_小M待剪辑':   'border-l-amber-500',
-  '05_小S待终审':   'border-l-blue-400',
-  '06_Vera待审核':  'border-l-gold-400',
-  '07_待发布':      'border-l-lime-500',
-  '08_已发布':      'border-l-emerald-500',
-  '09_数据待复盘':  'border-l-teal-500',
-  '10_已完成':      'border-l-surface-600',
-  '99_暂停/返工':   'border-l-red-500',
+  '01_AI_PENDING':    'border-l-surface-500',
+  '02_STRATEGY_REVIEW':   'border-l-blue-500',
+  '03_CONVERSION_URL': 'border-l-cyan-500',
+  '04_MEDIA_EDIT':   'border-l-amber-500',
+  '05_STRATEGY_FINAL':   'border-l-blue-400',
+  '06_VERA_REVIEW':  'border-l-gold-400',
+  '07_PUBLISH_READY':      'border-l-lime-500',
+  '08_PUBLISHED':      'border-l-emerald-500',
+  '09_DATA_REVIEW':  'border-l-teal-500',
+  '10_COMPLETED':      'border-l-surface-600',
+  '99_REWORK':   'border-l-red-500',
 };
 
 interface TaskCardProps {

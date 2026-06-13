@@ -1,9 +1,9 @@
 import type { MetricsInput, PublishQueueItem, WeeklyReportRow, WorkflowTask, WorkflowStatus } from '../types/workflowV1';
 
 const tasks: WorkflowTask[] = [
-  { task_id:'S-001',title:'VK short caption',platform:'VK',caption:'俄线发货流程',hashtags:['#logistics'],cta:'私信咨询',cta_type:'dm_consultation',utm:'https://x?a=1',asset_url:'https://asset/1',owner:'小S',status:'APPROVED',priority:'P1',risk_level:'LOW',requires_vera_review:false,review_reason:[],business_vertical:['logistics'],crm_tags:['vk'],system_block_check_required:true },
-  { task_id:'M-002',title:'YouTube case clip',platform:'YouTube',caption:'客户案例',hashtags:['#case'],cta:'提交表单',cta_type:'form_submit',utm:'https://x?a=2',asset_url:'https://asset/2',owner:'小M',status:'VERA_REVIEW',priority:'P0',risk_level:'HIGH',requires_vera_review:true,review_reason:['客户案例'],business_vertical:['sourcing'],crm_tags:['yt'],system_block_check_required:true },
-  { task_id:'C-003',title:'Blocked promise copy',platform:'Telegram',caption:'100%清关',hashtags:['#bad'],cta:'WhatsApp咨询',cta_type:'whatsapp_inquiry',utm:'https://x?a=3',asset_url:'https://asset/3',owner:'小C',status:'SYSTEM_BLOCK',priority:'P0',risk_level:'HIGH',requires_vera_review:true,review_reason:['承诺性表述'],business_vertical:['logistics'],crm_tags:['tg'],system_block_check_required:true },
+  { task_id:'S-001',title:'VK short caption',platform:'VK',caption:'俄线发货流程',hashtags:['#logistics'],cta:'私信咨询',cta_type:'dm_consultation',utm:'https://x?a=1',asset_url:'https://asset/1',owner:'STRATEGY',status:'APPROVED',priority:'P1',risk_level:'LOW',requires_vera_review:false,review_reason:[],business_vertical:['logistics'],crm_tags:['vk'],system_block_check_required:true },
+  { task_id:'M-002',title:'YouTube case clip',platform:'YouTube',caption:'客户案例',hashtags:['#case'],cta:'提交表单',cta_type:'form_submit',utm:'https://x?a=2',asset_url:'https://asset/2',owner:'MEDIA',status:'VERA_REVIEW',priority:'P0',risk_level:'HIGH',requires_vera_review:true,review_reason:['客户案例'],business_vertical:['sourcing'],crm_tags:['yt'],system_block_check_required:true },
+  { task_id:'C-003',title:'Blocked promise copy',platform:'Telegram',caption:'100%清关',hashtags:['#bad'],cta:'WhatsApp咨询',cta_type:'whatsapp_inquiry',utm:'https://x?a=3',asset_url:'https://asset/3',owner:'CONVERSION',status:'SYSTEM_BLOCK',priority:'P0',risk_level:'HIGH',requires_vera_review:true,review_reason:['承诺性表述'],business_vertical:['logistics'],crm_tags:['tg'],system_block_check_required:true },
 ];
 
 let queue: PublishQueueItem[] = [];

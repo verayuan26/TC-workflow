@@ -5,8 +5,8 @@ import { WEBSITES, RISK_LEVEL_STYLES, RISK_LEVEL_DOT } from '../types';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { TaskModal } from '../components/TaskModal';
 
-const isDone = (t: Task) => t.status === '08_已发布' || t.status === '10_已完成';
-const isBlocked = (t: Task) => t.status === '99_暂停/返工' || !!t.blockReason;
+const isDone = (t: Task) => t.status === '08_PUBLISHED' || t.status === '10_COMPLETED';
+const isBlocked = (t: Task) => t.status === '99_REWORK' || !!t.blockReason;
 
 // ── Decision card ─────────────────────────────────────────────────────────────
 
@@ -190,7 +190,7 @@ export function VeraReview({ tasks: allTasks }: VeraReviewProps) {
   // Zone 1: 今日必须审核 — non-budget, non-intercepted Vera pending, high/medium risk
   const mustReview = useMemo(() =>
     allTasks.filter((t) =>
-      t.status === '06_Vera待审核' && !t.isBudgetTask && !t.isIntercepted
+      t.status === '06_VERA_REVIEW' && !t.isBudgetTask && !t.isIntercepted
     ).sort((a, b) => {
       const rOrder: Record<string, number> = { '高': 0, '中': 1, '低': 2 };
       return (rOrder[a.riskLevel || '低'] ?? 2) - (rOrder[b.riskLevel || '低'] ?? 2);
@@ -200,7 +200,7 @@ export function VeraReview({ tasks: allTasks }: VeraReviewProps) {
   // Zone 2: 可快速通过 — autoApproved tasks still needing human sign-off
   const quickPass = useMemo(() =>
     allTasks.filter((t) =>
-      (t.autoApproved || t.status === '12_自动放行') && t.aiRiskScore != null && t.aiRiskScore <= 30
+      (t.autoApproved || t.status === '12_AUTO_APPROVED') && t.aiRiskScore != null && t.aiRiskScore <= 30
     ),
   [allTasks]);
 
@@ -212,7 +212,7 @@ export function VeraReview({ tasks: allTasks }: VeraReviewProps) {
   // Zone 4: 已自动放行记录 — auto-approved without need for sign-off
   const autoRecords = useMemo(() =>
     allTasks.filter((t) =>
-      (t.autoApproved || t.status === '12_自动放行') && !quickPass.find((q) => q.id === t.id)
+      (t.autoApproved || t.status === '12_AUTO_APPROVED') && !quickPass.find((q) => q.id === t.id)
     ),
   [allTasks, quickPass]);
 
@@ -222,7 +222,7 @@ export function VeraReview({ tasks: allTasks }: VeraReviewProps) {
     const completed = allTasks.filter(isDone).length;
     const completionPct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    const ROLES = ['小M', '小S', '小C', '小A', 'Vera'] as const;
+    const ROLES = ['MEDIA', 'STRATEGY', 'CONVERSION', 'ADS', 'VERA'] as const;
     const roleBlocked = ROLES.map((r) => ({
       role: r,
       count: allTasks.filter((t) => t.assignedTo === r && isBlocked(t)).length,
@@ -240,7 +240,7 @@ export function VeraReview({ tasks: allTasks }: VeraReviewProps) {
     const bestInquiry  = [...adTasks].sort((a, b) => (b.inquiries || 0) - (a.inquiries || 0))[0];
     const shouldPause  = adTasks.filter((t) => t.shouldPauseAd || t.adStatus === '暂停' || t.adStatus === '需优化');
     const shouldScale  = adTasks.filter((t) => t.shouldScale);
-    const pausedContent = allTasks.filter((t) => !t.isAdTask && (t.status === '99_暂停/返工' || !!t.blockReason));
+    const pausedContent = allTasks.filter((t) => !t.isAdTask && (t.status === '99_REWORK' || !!t.blockReason));
 
     return { completionPct, completed, total, mostBlockedRole, worstSite, highestSpend, bestInquiry, shouldPause, shouldScale, pausedContent };
   }, [allTasks]);

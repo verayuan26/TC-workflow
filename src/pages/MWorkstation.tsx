@@ -7,7 +7,7 @@ import { TaskModal } from '../components/TaskModal';
 import { filterTasks } from '../services/taskApi';
 
 const DEFAULT_FILTERS: FilterState = {
-  assignedTo: '小M', website: 'all', contentType: 'all',
+  assignedTo: 'MEDIA', website: 'all', contentType: 'all',
   status: 'all', priority: 'all', isOverdue: null, needsVeraReview: null,
 };
 
@@ -19,13 +19,13 @@ export function MWorkstation({ tasks }: MWorkstationProps) {
 
   const mTasks = useMemo(() => {
     const relevant = tasks.filter((t) =>
-      t.assignedTo === '小M' ||
-      t.status === '04_小M待剪辑' ||
+      t.assignedTo === 'MEDIA' ||
+      t.status === '04_MEDIA_EDIT' ||
       t.contentType === '素材整理' ||
       t.contentType === '短视频' ||
       t.contentType === '长视频'
     );
-    const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? '小M' : filters.assignedTo };
+    const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? 'MEDIA' : filters.assignedTo };
     return filterTasks(relevant, applied);
   }, [tasks, filters]);
 

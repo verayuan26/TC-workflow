@@ -7,7 +7,7 @@ import { TaskModal } from '../components/TaskModal';
 import { filterTasks } from '../services/taskApi';
 
 const DEFAULT_FILTERS: FilterState = {
-  assignedTo: '小C', website: 'all', contentType: 'all',
+  assignedTo: 'CONVERSION', website: 'all', contentType: 'all',
   status: 'all', priority: 'all', isOverdue: null, needsVeraReview: null,
 };
 
@@ -19,12 +19,12 @@ export function CWorkstation({ tasks }: CWorkstationProps) {
 
   const cTasks = useMemo(() => {
     const relevant = tasks.filter((t) =>
-      t.assignedTo === '小C' ||
-      t.status === '03_小C待确认URL' ||
+      t.assignedTo === 'CONVERSION' ||
+      t.status === '03_CONVERSION_URL' ||
       t.contentType === 'URL检查' ||
       t.contentType === 'Landing Page'
     );
-    const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? '小C' : filters.assignedTo };
+    const applied = { ...filters, assignedTo: filters.assignedTo === 'all' ? 'CONVERSION' : filters.assignedTo };
     return filterTasks(relevant, applied);
   }, [tasks, filters]);
 
@@ -75,7 +75,7 @@ function StatusDot({ label, status }: { label: string; status?: string }) {
 }
 
 function CTaskRow({ task, onClick }: { task: Task; onClick: (t: Task) => void }) {
-  const isPending = task.status === '03_小C待确认URL';
+  const isPending = task.status === '03_CONVERSION_URL';
   const isBlocked = !!task.blockReason;
 
   return (

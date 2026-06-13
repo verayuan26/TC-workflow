@@ -317,10 +317,10 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
           {/* 截止时间 */}
           {(task.mDeadline || task.sDeadline || task.cDeadline || task.aDeadline) && (
             <Section title="截止时间">
-              {task.mDeadline && <DeadlineField label="小M截止" date={task.mDeadline} overdue={task.isOverdue && task.assignedTo === '小M'} />}
-              {task.sDeadline && <DeadlineField label="小S截止" date={task.sDeadline} overdue={task.isOverdue && task.assignedTo === '小S'} />}
-              {task.cDeadline && <DeadlineField label="小C截止" date={task.cDeadline} overdue={task.isOverdue && task.assignedTo === '小C'} />}
-              {task.aDeadline && <DeadlineField label="小A截止" date={task.aDeadline} overdue={task.isOverdue && task.assignedTo === '小A'} />}
+              {task.mDeadline && <DeadlineField label="小M截止" date={task.mDeadline} overdue={task.isOverdue && task.assignedTo === 'MEDIA'} />}
+              {task.sDeadline && <DeadlineField label="小S截止" date={task.sDeadline} overdue={task.isOverdue && task.assignedTo === 'STRATEGY'} />}
+              {task.cDeadline && <DeadlineField label="小C截止" date={task.cDeadline} overdue={task.isOverdue && task.assignedTo === 'CONVERSION'} />}
+              {task.aDeadline && <DeadlineField label="小A截止" date={task.aDeadline} overdue={task.isOverdue && task.assignedTo === 'ADS'} />}
             </Section>
           )}
 
@@ -482,27 +482,27 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
 
         {/* Action footer */}
         <div className="border-t border-surface-700 px-5 py-3 flex gap-2 flex-wrap flex-shrink-0 bg-surface-900">
-          {task.status === '06_Vera待审核' && (
+          {task.status === '06_VERA_REVIEW' && (
             <>
               <button className="btn-gold flex items-center gap-1"><CheckCircle size={12} />通过</button>
               <button className="btn-danger flex items-center gap-1"><RotateCcw size={12} />退回</button>
               <button className="btn-ghost flex items-center gap-1"><PauseCircle size={12} />暂停发布</button>
             </>
           )}
-          {task.status === '04_小M待剪辑' && (
+          {task.status === '04_MEDIA_EDIT' && (
             <>
               <button className="btn-gold">提交成片</button>
               <button className="btn-ghost">需要补充素材</button>
               <button className="btn-ghost">标记完成</button>
             </>
           )}
-          {(task.status === '02_小S待审核' || task.status === '05_小S待终审') && (
+          {(task.status === '02_STRATEGY_REVIEW' || task.status === '05_STRATEGY_FINAL') && (
             <>
               <button className="btn-gold flex items-center gap-1"><CheckCircle size={12} />审核通过</button>
               <button className="btn-danger flex items-center gap-1"><RotateCcw size={12} />退回修改</button>
             </>
           )}
-          {task.status === '03_小C待确认URL' && (
+          {task.status === '03_CONVERSION_URL' && (
             <>
               <button className="btn-gold">填写页面URL</button>
               <button className="btn-ghost">提交UTM</button>

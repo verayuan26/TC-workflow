@@ -1,22 +1,17 @@
 import { Filter, X } from 'lucide-react';
 import type { FilterState } from '../types';
 import { WEBSITES } from '../types';
+import { getTaskStatusLabel, roleLabel } from '../config/roleDisplay';
+import { useRoleDisplay } from '../context/RoleDisplayContext';
 
 const STATUSES = [
-  '01_AI待生成', '02_小S待审核', '03_小C待确认URL', '04_小M待剪辑',
-  '05_小S待终审', '06_Vera待审核', '07_待发布', '08_已发布',
-  '09_数据待复盘', '10_已完成', '99_暂停/返工',
-];
-
-const STATUS_SHORT: Record<string, string> = {
-  '01_AI待生成': 'AI待生成', '02_小S待审核': '小S待审核', '03_小C待确认URL': '小C待确认',
-  '04_小M待剪辑': '小M待剪辑', '05_小S待终审': '小S待终审', '06_Vera待审核': 'Vera待审核',
-  '07_待发布': '待发布', '08_已发布': '已发布', '09_数据待复盘': '数据复盘',
-  '10_已完成': '已完成', '99_暂停/返工': '暂停/返工',
-};
+  '01_AI_PENDING', '02_STRATEGY_REVIEW', '03_CONVERSION_URL', '04_MEDIA_EDIT',
+  '05_STRATEGY_FINAL', '06_VERA_REVIEW', '07_PUBLISH_READY', '08_PUBLISHED',
+  '09_DATA_REVIEW', '10_COMPLETED', '99_REWORK',
+] as const;
 
 const CONTENT_TYPES = ['短视频', '长视频', 'SEO文章', 'Landing Page', 'URL检查', '素材整理', '发布文案', '数据复盘'];
-const ROLES = ['小M', '小S', '小C', 'Vera', '龙虾'];
+const ROLES = ['MEDIA', 'STRATEGY', 'CONVERSION', 'ADS', 'VERA', 'PM'] as const;
 
 interface FilterBarProps {
   filters: FilterState;
@@ -53,6 +48,7 @@ function Select({
 }
 
 export function FilterBar({ filters, onChange, counts }: FilterBarProps) {
+  useRoleDisplay();
   const hasActive =
     filters.assignedTo !== 'all' ||
     filters.website !== 'all' ||
@@ -77,7 +73,7 @@ export function FilterBar({ filters, onChange, counts }: FilterBarProps) {
           <Select
             label="负责人"
             value={filters.assignedTo}
-            options={ROLES.map((r) => ({ value: r, label: r }))}
+            options={ROLES.map((r) => ({ value: r, label: roleLabel(r) }))}
             onChange={(v) => onChange({ ...filters, assignedTo: v })}
           />
           <Select
@@ -95,7 +91,7 @@ export function FilterBar({ filters, onChange, counts }: FilterBarProps) {
           <Select
             label="状态"
             value={filters.status}
-            options={STATUSES.map((s) => ({ value: s, label: STATUS_SHORT[s] }))}
+            options={STATUSES.map((s) => ({ value: s, label: getTaskStatusLabel(s) }))}
             onChange={(v) => onChange({ ...filters, status: v })}
           />
           <Select

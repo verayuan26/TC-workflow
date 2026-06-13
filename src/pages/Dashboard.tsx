@@ -7,9 +7,9 @@ import { TaskModal } from '../components/TaskModal';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const DONE_STATUSES: TaskStatus[] = ['08_已发布', '10_已完成'];
+const DONE_STATUSES: TaskStatus[] = ['08_PUBLISHED', '10_COMPLETED'];
 const isDone = (t: Task) => DONE_STATUSES.includes(t.status);
-const isBlocked = (t: Task) => t.status === '99_暂停/返工' || !!t.blockReason;
+const isBlocked = (t: Task) => t.status === '99_REWORK' || !!t.blockReason;
 
 // ── Completion Ring ──────────────────────────────────────────────────────────
 
@@ -102,23 +102,23 @@ function QuickStat({ label, value, sub, icon, accent }: { label: string; value: 
 
 interface KanbanColumn { label: string; statuses: TaskStatus[]; accent: string; headerBorder: string }
 const KANBAN_COLUMNS: KanbanColumn[] = [
-  { label: 'AI待生成',   statuses: ['01_AI待生成'],                  accent: 'text-surface-400',  headerBorder: 'border-surface-600'    },
-  { label: '小S待审核',  statuses: ['02_小S待审核', '05_小S待终审'],  accent: 'text-blue-400',     headerBorder: 'border-blue-600/50'    },
-  { label: '小C待确认',  statuses: ['03_小C待确认URL'],               accent: 'text-cyan-400',     headerBorder: 'border-cyan-600/50'    },
-  { label: '小M待剪辑',  statuses: ['04_小M待剪辑'],                  accent: 'text-amber-400',    headerBorder: 'border-amber-600/50'   },
-  { label: 'Vera待审核', statuses: ['06_Vera待审核'],                 accent: 'text-gold-400',     headerBorder: 'border-gold-500/50'    },
-  { label: '待发布',     statuses: ['07_待发布'],                     accent: 'text-lime-400',     headerBorder: 'border-lime-600/50'    },
-  { label: '已完成',     statuses: ['08_已发布', '09_数据待复盘', '10_已完成'], accent: 'text-emerald-400', headerBorder: 'border-emerald-600/50' },
+  { label: 'AI待生成',   statuses: ['01_AI_PENDING'],                  accent: 'text-surface-400',  headerBorder: 'border-surface-600'    },
+  { label: '小S待审核',  statuses: ['02_STRATEGY_REVIEW', '05_STRATEGY_FINAL'],  accent: 'text-blue-400',     headerBorder: 'border-blue-600/50'    },
+  { label: '小C待确认',  statuses: ['03_CONVERSION_URL'],               accent: 'text-cyan-400',     headerBorder: 'border-cyan-600/50'    },
+  { label: '小M待剪辑',  statuses: ['04_MEDIA_EDIT'],                  accent: 'text-amber-400',    headerBorder: 'border-amber-600/50'   },
+  { label: 'Vera待审核', statuses: ['06_VERA_REVIEW'],                 accent: 'text-gold-400',     headerBorder: 'border-gold-500/50'    },
+  { label: '待发布',     statuses: ['07_PUBLISH_READY'],                     accent: 'text-lime-400',     headerBorder: 'border-lime-600/50'    },
+  { label: '已完成',     statuses: ['08_PUBLISHED', '09_DATA_REVIEW', '10_COMPLETED'], accent: 'text-emerald-400', headerBorder: 'border-emerald-600/50' },
 ];
 
 // ── Role config ───────────────────────────────────────────────────────────────
 
 const ROLES: { role: Role; label: string; accent: BarAccent; icon: React.ReactNode }[] = [
-  { role: '小S', label: '小S  内容', accent: 'blue',    icon: <FileText size={11} /> },
-  { role: '小M', label: '小M  视频', accent: 'amber',   icon: <Scissors size={11} /> },
-  { role: '小C', label: '小C  技术', accent: 'cyan',    icon: <Link2 size={11} /> },
-  { role: '小A', label: '小A  广告', accent: 'orange',  icon: <BarChart2 size={11} /> },
-  { role: 'Vera',label: 'Vera 审核', accent: 'gold',    icon: <Eye size={11} /> },
+  { role: 'STRATEGY', label: '小S  内容', accent: 'blue',    icon: <FileText size={11} /> },
+  { role: 'MEDIA', label: '小M  视频', accent: 'amber',   icon: <Scissors size={11} /> },
+  { role: 'CONVERSION', label: '小C  技术', accent: 'cyan',    icon: <Link2 size={11} /> },
+  { role: 'ADS', label: '小A  广告', accent: 'orange',  icon: <BarChart2 size={11} /> },
+  { role: 'VERA',label: 'Vera 审核', accent: 'gold',    icon: <Eye size={11} /> },
 ];
 
 const CONTENT_TYPES: { type: string; accent: BarAccent }[] = [
@@ -167,9 +167,9 @@ export function Dashboard({ tasks }: DashboardProps) {
     const totalValidInquiries = adTasks.reduce((s, t) => s + (t.validInquiries || 0), 0);
 
     // Phase 4 automation metrics
-    const autoApproved = tasks.filter((t) => t.autoApproved || t.status === '12_自动放行').length;
-    const intercepted  = tasks.filter((t) => t.isIntercepted || t.status === '11_已拦截').length;
-    const veraPending  = tasks.filter((t) => t.status === '06_Vera待审核').length;
+    const autoApproved = tasks.filter((t) => t.autoApproved || t.status === '12_AUTO_APPROVED').length;
+    const intercepted  = tasks.filter((t) => t.isIntercepted || t.status === '11_BLOCKED').length;
+    const veraPending  = tasks.filter((t) => t.status === '06_VERA_REVIEW').length;
     const budgetPending = tasks.filter((t) => t.isBudgetTask && t.budgetStatus === '等待Vera确认预算').length;
     const autoApproveRate = total > 0 ? Math.round((autoApproved / total) * 100) : 0;
     const interceptRate   = total > 0 ? Math.round((intercepted  / total) * 100) : 0;
@@ -504,7 +504,7 @@ export function Dashboard({ tasks }: DashboardProps) {
               <Bot size={12} className="text-blue-400" />
               <span className="text-[9px] uppercase tracking-widest text-surface-500">AI生成任务</span>
             </div>
-            <p className="text-xl font-bold text-blue-400">{tasks.filter((t) => t.status === '01_AI待生成' || t.opLog?.some((l) => l.operator === '龙虾')).length}</p>
+            <p className="text-xl font-bold text-blue-400">{tasks.filter((t) => t.status === '01_AI_PENDING' || t.opLog?.some((l) => l.operator === 'AI')).length}</p>
             <p className="text-[10px] text-surface-600">龙虾AI助理</p>
           </div>
         </div>
@@ -572,7 +572,7 @@ export function Dashboard({ tasks }: DashboardProps) {
 
       {/* Paused/blocked */}
       {(() => {
-        const paused = tasks.filter((t) => t.status === '99_暂停/返工');
+        const paused = tasks.filter((t) => t.status === '99_REWORK');
         if (!paused.length) return null;
         return (
           <div>

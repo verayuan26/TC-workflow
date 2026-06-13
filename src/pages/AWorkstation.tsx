@@ -8,7 +8,7 @@ import { TaskModal } from '../components/TaskModal';
 import { filterTasks } from '../services/taskApi';
 
 const DEFAULT_FILTERS: FilterState = {
-  assignedTo: '小A', website: 'all', contentType: 'all',
+  assignedTo: 'ADS', website: 'all', contentType: 'all',
   status: 'all', priority: 'all', isOverdue: null, needsVeraReview: null,
 };
 
@@ -269,7 +269,7 @@ export function AWorkstation({ tasks }: AWorkstationProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const adTasks = useMemo(() => {
-    const relevant = tasks.filter((t) => t.isAdTask || t.assignedTo === '小A');
+    const relevant = tasks.filter((t) => t.isAdTask || t.assignedTo === 'ADS');
     return filterTasks(relevant, { ...filters, assignedTo: 'all' });
   }, [tasks, filters]);
 
