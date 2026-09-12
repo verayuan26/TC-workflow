@@ -1,0 +1,21 @@
+{
+  "schema_version": "tiger-staff-import/1",
+  "members": [
+    {
+      "person_id": "person_example_owner",
+      "display_name": "示例老板",
+      "work_email": "owner@example.invalid",
+      "staff_role": "boss",
+      "source_member_id": null,
+      "permissions": ["overview:read", "outreach:approve", "settings:manage"]
+    },
+    {
+      "person_id": "person_example_editor",
+      "display_name": "示例剪辑师",
+      "work_email": "editor@example.invalid",
+      "staff_role": "editor",
+      "source_member_id": "00000000-0000-4000-8000-000000000000",
+      "permissions": ["content:read", "content:claim", "content:handback"]
+    }
+  ]
+}

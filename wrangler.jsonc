@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tiger-unified-workbench",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application" },
+  "d1_databases": [{ "binding": "DB", "database_name": "tiger-unified-workbench", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "worker/migrations" }],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "tiger-workbench-files", "preview_bucket_name": "tiger-workbench-files-preview" }],
+  "vars": { "CF_ACCESS_TEAM_DOMAIN": "", "CF_ACCESS_AUD": "", "ALLOW_DEV_AUTH": "false", "DEV_PERSON_EMAIL": "" }
+}
