@@ -2,7 +2,7 @@
 
 当前结论（2026-09-13）：老板确认所有素材、剪辑包和真人回传只存现有 NAS，R2 不启用。外网使用 Cloudflare Tunnel 把统一域名转到原 8787 生产服务，Cloudflare Access 只负责登录保护；不建立第二套文件库或渲染系统。
 
-当前执行状态（2026-09-13 15:48）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并校验通过。Cloudflare API 返回 `Access is not enabled`，所以 Tunnel 故意保持停止，尚未形成无保护公网入口。待老板在 Zero Trust 控制台完成 Access Free 启用后，继续建立仅三名老板指定测试成员可登录的 Self-hosted 应用并启动 Tunnel；第三名成员需先补录工作邮箱。
+当前执行状态（2026-09-13 16:10）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并校验通过。Cloudflare API 返回 `Access is not enabled`，现有 Wrangler OAuth 令牌没有 Access 写权限，所以 Tunnel 故意保持停止，尚未形成无保护公网入口。第三名测试成员已核对为私有花名册中的既有剪辑师身份。Chrome 已打开只申请 Access 组织/身份/组写入与应用/策略写入的自定义令牌表单；生成临时最小权限令牌后继续 API 配置。
 
 ## 切换前门槛
 
