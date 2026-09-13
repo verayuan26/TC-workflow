@@ -33,7 +33,7 @@
 ## 下一步
 
 1. 周一由真实剪辑师在现有局域网页领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
-2. 老板在已打开的 Cloudflare 页面登录，并为账户启用 Zero Trust Access 与 R2；当前 API 分别返回 `access.api.error.not_enabled` 和 `10042`，这是剩余的账户级人工门槛。
+2. 老板已登录 Cloudflare；当前停在账户订阅开通门槛：R2 要完成 checkout，Zero Trust 要选择团队名/套餐并确认付款资料。完成后 API 才会解除 `access.api.error.not_enabled` 和 `10042`。
 3. 启用后只导入老板和阿旺两位试用成员，建立邮箱 Allow 策略、上传工作包、部署统一入口并完成两人跨设备测试；通过后才邀请其他人。
 4. 远程两轮通过后切统一域名；旧入口先只读观察，不能删除。
 
