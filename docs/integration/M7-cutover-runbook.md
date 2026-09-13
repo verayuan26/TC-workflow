@@ -2,18 +2,18 @@
 
 当前结论（2026-09-13）：老板确认所有素材、剪辑包和真人回传只存现有 NAS，R2 不启用。外网使用 Cloudflare Tunnel 把统一域名转到原 8787 生产服务，Cloudflare Access 只负责登录保护；不建立第二套文件库或渲染系统。
 
-当前执行状态（2026-09-13 15:25）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并校验通过。Cloudflare API 返回 `Access is not enabled`，所以 Tunnel 故意保持停止，尚未形成无保护公网入口。待老板在 Zero Trust 控制台完成 Access Free 启用后，继续建立仅老板与阿旺可登录的 Self-hosted 应用并启动 Tunnel。
+当前执行状态（2026-09-13 15:48）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并校验通过。Cloudflare API 返回 `Access is not enabled`，所以 Tunnel 故意保持停止，尚未形成无保护公网入口。待老板在 Zero Trust 控制台完成 Access Free 启用后，继续建立仅三名老板指定测试成员可登录的 Self-hosted 应用并启动 Tunnel；第三名成员需先补录工作邮箱。
 
 ## 切换前门槛
 
 1. 首周 r2、工作资料和历史版本非删除式同步到现有 NAS 交付目录；8787 的 `TIGER_WORKBENCH_STORAGE_ROOT` 指向该目录，并验证实际下载来自 NAS。
 2. 建立 Cloudflare Tunnel，把统一域名转到 `http://127.0.0.1:8787`；老板在 Cloudflare 控制台启用 Zero Trust Access 并建立 Self-hosted 应用。
-3. 第一轮只允许老板和阿旺两位工作邮箱。部署后先对这两位做私有映射 dry-run，0 conflict 才实际导入；其余成员不得提前邀请。
+3. 第一轮只允许三名老板指定测试成员的工作邮箱。部署后先对三人做私有映射 dry-run，0 conflict 才实际导入；其余成员不得提前邀请。
 4. 建立 `service_content_producer`，只授予 `content:sync`、`content:commands`、`content:artifacts`；令牌只交原生产电脑。
-5. 不上传 R2。核对 NAS 中 4 个 r2 ZIP、12 项任务资料、8 个内容记录 / 剪辑师只见 4 个 r2 / 41 slots / 2 位试用成员。
-6. 用老板和阿旺两个真实身份各登录一次；验证默认入口、数据范围、下载和 403。
+5. 不上传 R2。核对 NAS 中 4 个 r2 ZIP、12 项任务资料、8 个内容记录 / 剪辑师只见 4 个 r2 / 41 slots / 3 位试用成员。
+6. 用三名指定测试成员的真实身份各登录一次；验证默认入口、数据范围、下载和 403。
 7. 指定剪辑师跑一条真实 claim→下载→handback；原生产端 ACK 后 Codex QA，确认 HUMAN revision 被保护。
-8. 两人两轮远程测试通过后才切统一域名；旧 8787/旧页面先改只读观察，不删除。测试完成并得到老板确认后再邀请其他员工。
+8. 三人两轮远程测试通过后才切统一域名；旧 8787/旧页面先改只读观察，不删除。测试完成并得到老板确认后再邀请其他员工。
 
 ## 恢复
 
