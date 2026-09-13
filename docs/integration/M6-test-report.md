@@ -1,6 +1,6 @@
 # M6 两轮联测报告
 
-日期：2026-09-13。环境：隔离本地 Cloudflare Worker/D1/R2 + 原 8787 生产服务；未访问真实平台发布接口。
+日期：2026-09-13。环境：原 8787 生产服务、原 SQLite 与 NAS；早期隔离 Worker 文件测试已被老板确认的 NAS 生产文件层取代。未访问真实平台发布接口。
 
 ## 第一轮：正常路径
 
@@ -12,7 +12,7 @@
 | 重复员工导入 | PASS | 再次为 9 match / 0 new / 0 conflict，不增员 |
 | 内容投影 | PASS | source_revision 2；8 tasks；41 publications |
 | 外联共享状态 | PASS | draft 初始化，老板保存范围后 revision 1→2，未启动计时 |
-| R2 文件往返 | PASS | 实际 RU SRT 444 bytes，下载 SHA256 与源文件一致 |
+| NAS 文件往返 | PASS | 8787 从 NAS 流式读取当前 r2 ZIP；下载字节与 NAS 原文件一致，4 个 ZIP 完整 |
 | 角色数据范围 | PASS | 剪辑只见 4 条具备完整工作包的 r2 视频；4 条 r1 配套图文不进入剪辑区；非三方内容角色访问为 403 |
 | 生产剪辑包 | PASS | 4 条 18.000 秒视频均含 video+audio；4 个 ZIP 完整；Vera profile 与收据一致 |
 | 代码检查 | PASS | TypeScript app/Worker、ESLint、17 条领域断言、生产 workbench 3 测试、Vite build |
@@ -36,5 +36,5 @@
 
 - 指定剪辑师使用本人真实 Access 登录、领取 r2、下载素材、修改、上传 MP4 与工程。
 - Codex 对该真人回传执行技术 QA 并生成新 HUMAN revision。
-- 外网 Access、R2、两位试用员工 Access 放行、生产域名和恢复切换；真实 D1 已创建并完成迁移。
+- 外网 Tunnel、Access、两位试用员工 Access 放行、生产域名和恢复切换；真实 D1 已创建并完成迁移，R2 不启用。
 - 五渠道实际定时或发布；当前只有本地发布包。

@@ -20,7 +20,7 @@
 
 ## 未验证 / 外部依赖
 
-- Cloudflare Access 应用、Audience、D1/R2 生产绑定和员工邀请是否已创建。
+- Cloudflare Tunnel、Access 应用、Audience、D1 生产绑定和员工邀请是否已创建；文件固定使用 NAS，不启用 R2。
 - GitHub 远端推送/PR、Cloudflare 发布、域名切换、真实外发与付费是否在本次授权范围。
 - 指定剪辑师从外网完成一次真实领取、下载、回传成片及工程的结果。
 

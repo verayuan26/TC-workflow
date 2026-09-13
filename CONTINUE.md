@@ -2,7 +2,7 @@
 
 - 更新时间：2026-09-13（Asia/Shanghai）
 - 分支：`codex/tiger-workbench-integration-v1`
-- 当前阶段：M0—M6 可执行项完成；M7 已完成 GitHub 推送与真实 D1 初始化，Access/R2 待账户启用；M4 真人回传约定周一由剪辑师完成
+- 当前阶段：M0—M6 可执行项完成；M7 按老板确认改为 NAS＋Cloudflare Tunnel/Access，R2 不启用；M4 真人回传约定周一由剪辑师完成
 - 上游基线：`356f6bb059889ca9314ea54cee098364dbea3b02`
 - 内容来源：d940fe0 对应增量，9 个文件哈希一致
 - 外联来源：ebcd960，业务规则已读取，待迁入共享 D1
@@ -20,7 +20,7 @@
 
 ## 已完成
 
-- Access JWT、D1 0001—0003、R2、稳定 person_id、服务身份、审计和私有 dry-run/import 已实现。
+- Access JWT、D1 0001—0003、稳定 person_id、服务身份、审计和私有 dry-run/import 已实现；R2 代码仅保留为历史实现，不作为生产文件层。
 - 外联 V2 规则与 CAS 已迁入；30 天试验保持 draft。
 - 4 条 18 秒 Vera r2、双 SRT、分镜、脚本、收据、工程和完整剪辑包均已生成；r1 已保留。
 - 剪辑师任务投影已收紧：只显示 owner=EDITOR、short_video、revision>=2 且完整包为 READY_FOR_EDITOR 的 4 条 r2；4 份 r1 配套图文不再进入剪辑领取区。
@@ -33,8 +33,8 @@
 ## 下一步
 
 1. 周一由真实剪辑师在现有局域网页领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
-2. 老板已登录 Cloudflare；当前停在账户订阅开通门槛：R2 要完成 checkout，Zero Trust 要选择团队名/套餐并确认付款资料。完成后 API 才会解除 `access.api.error.not_enabled` 和 `10042`。
-3. 启用后只导入老板和阿旺两位试用成员，建立邮箱 Allow 策略、上传工作包、部署统一入口并完成两人跨设备测试；通过后才邀请其他人。
+2. 首周 r2 与历史版本已非删除式同步到现有 NAS 交付目录，8787 服务存储根已切到 NAS；Cloudflare Tunnel 客户端安装后将统一域名直接转到该生产服务。
+3. Zero Trust Access 启用后只允许老板和阿旺两位邮箱，完成两人跨设备下载/回传测试；通过后才邀请其他人。R2 不启用、不上传。
 4. 远程两轮通过后切统一域名；旧入口先只读观察，不能删除。
 
 ## 禁止
