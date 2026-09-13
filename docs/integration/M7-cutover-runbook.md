@@ -2,6 +2,8 @@
 
 当前结论（2026-09-13）：老板确认所有素材、剪辑包和真人回传只存现有 NAS，R2 不启用。外网使用 Cloudflare Tunnel 把统一域名转到原 8787 生产服务，Cloudflare Access 只负责登录保护；不建立第二套文件库或渲染系统。
 
+当前执行状态（2026-09-13 15:25）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并校验通过。Cloudflare API 返回 `Access is not enabled`，所以 Tunnel 故意保持停止，尚未形成无保护公网入口。待老板在 Zero Trust 控制台完成 Access Free 启用后，继续建立仅老板与阿旺可登录的 Self-hosted 应用并启动 Tunnel。
+
 ## 切换前门槛
 
 1. 首周 r2、工作资料和历史版本非删除式同步到现有 NAS 交付目录；8787 的 `TIGER_WORKBENCH_STORAGE_ROOT` 指向该目录，并验证实际下载来自 NAS。

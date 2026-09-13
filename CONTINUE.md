@@ -8,7 +8,7 @@
 - 外联来源：ebcd960，业务规则已读取，待迁入共享 D1
 - 生产源：本机 `ai-media-tools` / `library.sqlite` / NAS，禁止新建第二套
 - 内容入口（现有局域网）：`http://video-factory.local:8787/workbench/`
-- 统一入口：本地 Worker 已验证 `/overview`、`/content`、`/outreach`、`/settings`；为避免无 Access 保护的公开入口，远程 Worker 尚未发布
+- 统一入口：`https://workbench.tigersourcingchina.com/workbench/` 的 Tunnel 与 DNS 已创建、ingress 已校验；因账户尚未启用 Access，Tunnel 保持停止，公网入口尚未开放
 
 ## 已确认
 
@@ -33,8 +33,8 @@
 ## 下一步
 
 1. 周一由真实剪辑师在现有局域网页领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
-2. 首周 r2 与历史版本已非删除式同步到现有 NAS 交付目录，8787 服务存储根已切到 NAS并通过实际字节核对；Cloudflare Tunnel 客户端已安装，正在等待账户在授权页选择 `tigersourcingchina.com` 并批准。
-3. Zero Trust Access 启用后只允许老板和阿旺两位邮箱，完成两人跨设备下载/回传测试；通过后才邀请其他人。R2 不启用、不上传。
+2. 首周 r2 与历史版本已非删除式同步到现有 NAS 交付目录，8787 服务存储根已切到 NAS 并通过实际字节核对；Cloudflare Tunnel `tiger-workbench`、统一域名 DNS 和本机 ingress 已创建并校验通过。
+3. Cloudflare API 当前返回 `Access is not enabled`。老板需在已打开的 Zero Trust 页面启用 Access（Free 套餐；若页面要求登记付款方式，由老板本人确认）；启用后由 Codex只加入老板和阿旺两位邮箱并启动 Tunnel，完成两人跨设备下载/回传测试。通过前不邀请其他人。R2 不启用、不上传。
 4. 远程两轮通过后切统一域名；旧入口先只读观察，不能删除。
 
 ## 禁止
