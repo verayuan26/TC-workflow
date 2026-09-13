@@ -25,6 +25,7 @@
 - 4 条 18 秒 Vera r2、双 SRT、分镜、脚本、收据、工程和完整剪辑包均已生成；r1 已保留。
 - 剪辑师任务投影已收紧：只显示 owner=EDITOR、short_video、revision>=2 且完整包为 READY_FOR_EDITOR 的 4 条 r2；4 份 r1 配套图文不再进入剪辑领取区。
 - AMT 已增加受控语义词表和素材评分器，排除不存在的旧路径并输出匹配理由；两母题素材已重新选取、人工看样、重新打包，原 r2 已归档保留。
+- 素材匹配根因与统计证据见 `docs/integration/AMT-material-match-audit-20260913.md`。
 - 第一周 10 槽发布包已生成，状态 `PREPARED_NOT_SCHEDULED`。
 - 两轮本地联测、生产 workbench 测试、类型、lint、build 和 0 漏洞扫描通过。
 - GitHub 分支 `codex/tiger-workbench-integration-v1` 已经由 SSH 推送；真实 D1 `tiger-unified-workbench` 已创建并完成 0001—0003 迁移。
