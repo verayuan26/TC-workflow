@@ -153,9 +153,16 @@ async function projection(env: Env) {
     ? (JSON.parse(row.snapshot_json) as Record<string, unknown>)
     : null;
 }
+function editorReadyTask(task:Record<string,unknown>){
+  const workPackage=task.work_package as Record<string,unknown>|undefined;
+  return task.owner==="EDITOR"&&task.kind==="short_video"&&Number(task.revision)>=2&&workPackage?.status==="READY_FOR_EDITOR";
+}
 async function projectionForActor(env:Env,actor:AuthActor){
   requirePermission(actor,"content:read","content:read:assigned");
   const value=await projection(env);if(!value)return null;
+  if(actor.role==="editor"){
+    const copy=structuredClone(value);copy.tasks=(copy.tasks as Record<string,unknown>[]||[]).filter(editorReadyTask);return copy;
+  }
   if(!actor.permissions.includes("content:read:assigned"))return value;
   const copy=structuredClone(value);const tasks=(copy.tasks as Record<string,unknown>[]||[]).filter(task=>task.assignee_person_id===actor.id);copy.tasks=tasks;copy.publications=[];return copy;
 }
@@ -260,6 +267,8 @@ async function createCommand(request: Request, env: Env, actor: AuthActor) {
     throw new HttpError("任务版本已更新，请刷新后重新提交", 409);
   if (["CLAIM", "HANDBACK", "ISSUE"].includes(type) && actor.role !== "editor")
     throw new HttpError("该命令只由剪辑师提交", 403);
+  if (["CLAIM", "HANDBACK", "ISSUE"].includes(type) && !editorReadyTask(task))
+    throw new HttpError("剪辑师只能处理资料齐全的当前 R2 视频任务", 403);
   if (type === "DECISION" && actor.role !== "boss")
     throw new HttpError("该决定只由老板提交", 403);
   if (

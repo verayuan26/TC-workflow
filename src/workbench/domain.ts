@@ -4,7 +4,7 @@ export type TaskStatus = 'NEEDS_EDIT' | 'NEEDS_ASSET' | 'QUEUED' | 'RUNNING' | '
 export type PhaseStatus = 'WAITING' | 'RUNNING' | 'PASSED' | 'BLOCKED';
 export interface Phase { id: string; title: string; goal: string; codex: string[]; human: string[]; inputs: string[]; outputs: string[]; checks: string[]; next: string; }
 export interface WorkArtifact { key:string; label:string; kind:string; filename:string; size_bytes?:number; download_url?:string; }
-export interface WorkAsset { asset_id:string; filename:string; nas_path:string; usage:string; in_out:string; download_url?:string; }
+export interface WorkAsset { asset_id:string; filename:string; nas_path:string; usage:string; in_out:string; semantic_match_reason?:string; download_url?:string; }
 export interface StoryboardShot { time:string; visual:string; voiceover:string; on_screen_text:string; edit_note:string; }
 export interface WorkPackage {
   schema_version:'tiger-editor-work-package/1';
@@ -28,6 +28,9 @@ export const STATUS_LABEL: Record<TaskStatus,string> = {NEEDS_EDIT:'待你修改
 export const PHASE_LABEL: Record<PhaseStatus,string> = {WAITING:'未开始',RUNNING:'进行中',PASSED:'已检验',BLOCKED:'待解决'};
 export const PUB_LABEL: Record<Publication['status'],string> = {PLANNED:'计划槽位',SCHEDULED:'已设定时',PUBLISHED:'已发布',BLOCKED:'待解决',UNKNOWN:'结果待核实'};
 export const ACTOR_LABEL: Record<Actor,string> = {EDITOR:'剪辑师',CODEX:'Codex',BOSS:'老板'};
+export function isEditorReadyTask(task:Task):boolean {
+  return task.owner==='EDITOR'&&task.kind==='short_video'&&task.revision>=2&&task.work_package?.status==='READY_FOR_EDITOR';
+}
 export const CHANNELS = [
   {name:'VK',language:'俄语',count:3,role:'冷启动 · 曝光 · 私信获客',format:'2 条短视频 + 1 篇参数图文'},
   {name:'Telegram',language:'俄语',count:2,role:'技术资料 · 老客 · 私信承接',format:'2 条短内容'},

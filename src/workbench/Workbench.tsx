@@ -40,6 +40,7 @@ import {
   Snapshot,
   Task,
   handback,
+  isEditorReadyTask,
   safeUrl,
   shanghaiTime,
   taskChecklist,
@@ -143,8 +144,8 @@ function List({ items }: { items: string[] }) {
   );
 }
 
-export function Workbench() {
-  const [role, setRole] = useState<Actor>("EDITOR");
+export function Workbench({actor,lockRole=false}:{actor?:Actor;lockRole?:boolean}={}) {
+  const [role, setRole] = useState<Actor>(actor||"EDITOR");
   const [view, setView] = useState<View>("work");
   const [demo, setDemo] = useState(false);
   const [actual, setActual] = useState<Snapshot | null>(null);
@@ -171,14 +172,16 @@ export function Workbench() {
   const published = snapshot.publications.filter(
     (p) => p.week === week && p.status === "PUBLISHED",
   ).length;
-  const pending = snapshot.tasks.filter(
+  useEffect(()=>{if(actor)setRole(actor);},[actor]);
+  const actorTasks = role === "EDITOR" ? snapshot.tasks.filter(isEditorReadyTask) : snapshot.tasks;
+  const pending = actorTasks.filter(
     (t) =>
       t.week === week &&
       t.owner === "EDITOR" &&
       ["NEEDS_EDIT", "REVIEW_REQUIRED"].includes(t.status) &&
       !responses.some((r) => r.key === taskKey(t) && r.kind === "handoff"),
   );
-  const weekTasks = snapshot.tasks.filter((t) => t.week === week);
+  const weekTasks = actorTasks.filter((t) => t.week === week);
   const chosen = weekTasks.find((t) => t.id === selected) || weekTasks[0];
   const currentPhase =
     PHASES.find((p) => p.id === snapshot.current_stage) || PHASES[0];
@@ -347,7 +350,7 @@ export function Workbench() {
                 </select>
               </label>
             )}
-            <div className="tw-role-switch" aria-label="查看工作视角">
+            {!lockRole&&<div className="tw-role-switch" aria-label="查看工作视角">
               {(["EDITOR", "BOSS", "CODEX"] as Actor[]).map((r) => (
                 <button
                   aria-pressed={role === r}
@@ -366,7 +369,7 @@ export function Workbench() {
                   {ACTOR_LABEL[r]}
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
         </header>
         <div
@@ -1199,6 +1202,7 @@ function TaskDetail({
                       <small>{asset.asset_id} · {asset.in_out}</small>
                       <code>{asset.nas_path}</code>
                       <p>{asset.usage}</p>
+                      {asset.semantic_match_reason&&<p><b>匹配依据：</b>{asset.semantic_match_reason}</p>}
                     </div>
                     {safeUrl(asset.download_url) && (
                       <a className="tw-button" href={safeUrl(asset.download_url)} download>

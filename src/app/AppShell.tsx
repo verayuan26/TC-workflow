@@ -22,6 +22,12 @@ export type Viewer = {
   role: StaffRole;
   permissions: string[];
 };
+function contentActor(viewer:Viewer|null):"EDITOR"|"CODEX"|"BOSS"|undefined {
+  if(!viewer)return undefined;
+  if(viewer.role==="boss")return "BOSS";
+  if(viewer.role==="editor")return "EDITOR";
+  return "CODEX";
+}
 type Route = "/overview" | "/content" | "/outreach" | "/settings" | "/legacy";
 const routes: Route[] = [
   "/overview",
@@ -138,7 +144,7 @@ export function AppShell() {
       {!routeAllowed&&<section className="tc-page"><h1>没有此模块权限</h1><p>当前身份只能查看被授权的工作；直接输入网址不会扩大权限。</p></section>}
       {routeAllowed&&<>
       {route === "/overview" && <Overview viewer={viewer} />}
-        {route === "/content" && <Workbench />}
+        {route === "/content" && <Workbench actor={contentActor(viewer)} lockRole={!!viewer} />}
         {route === "/outreach" && <OutreachWorkbench viewer={viewer} />}
         {route === "/settings" && <SettingsPage viewer={viewer} />}
       {route === "/legacy" && (
