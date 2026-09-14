@@ -2,7 +2,7 @@
 
 - 更新时间：2026-09-14（Asia/Shanghai）
 - 分支：`codex/tiger-workbench-integration-v1`
-- 当前阶段：Outreach O0—O3 技术项完成，O4 等待获授权业务员邮箱与 8 家分配范围；内容模块 M0—M6 可执行项完成，M7 的三人跨设备回传证据仍待补
+- 当前阶段：Outreach O0—O3 技术项完成；O4 已按老板授权把 8 家统一分配给 ALAN，等待 Cloudflare Access 放行及 ALAN 本人登录/回传验收；内容模块 M0—M6 可执行项完成，M7 的三人跨设备回传证据仍待补
 - 上游基线：`356f6bb059889ca9314ea54cee098364dbea3b02`
 - 内容来源：d940fe0 对应增量，9 个文件哈希一致
 - 外联来源：ebcd960，业务规则已迁入共享 D1；本次部署代码见 `cb1f6c0`
@@ -18,11 +18,12 @@
 - D1：沿用 `tiger-unified-workbench`（`f6bf2bbf-68d7-49c7-b5ec-76fc7e85e548`），已应用 `0004`、`0005`；没有第二套客户数据库。
 - 附件：`com.tiger.outreach.files` 在 `127.0.0.1:8788` 运行，Tunnel 只代理 `/outreach-files/*`；文件落在受控本机目录，不启用 R2。
 - Multica：TIG-370 合成交接测试完成；TIG-371 正式 8 家入库完成并由 Codex 复核关闭。正式回执为新增 8、重复关联 0、待补 0、冲突/失败 0；重复投递 `idempotent=true`。
-- 生产真值：非测试客户 8、来源 8、首联任务 8、批次条目 8；全部 `unassigned`、`uncontacted`，需求和中国供货确认均为 `unknown`；试验保持 `draft`。
+- 生产真值：非测试客户 8、来源 8、首联任务 8、批次条目 8；客户与任务均为 ALAN 8/8，任务全部 `pending`、客户全部 `uncontacted`，owner mismatch=0；需求和中国供货确认均为 `unknown`，试验保持 `draft`。
 - 技术闭环：虚拟隔离身份已通过查看、开始、附件 SHA/回执、真实提交事件、Codex pass/needs_more、同任务补交、下一任务、重启恢复；部分失败批次按条返回 `matched + needs_more`，不会拖垮合格条目。
 - 入口证据：公网 `/outreach`、`/workbench/`、`/legacy`、附件均由 Access 返回 302；服务域无令牌 401，非 Outreach 路径 404，伪造邮箱头仍被 Access 拦截；生产 API 以服务身份返回 8 客户/8 任务。
 - 恢复点：`/Users/mac/Library/Application Support/TigerOutreach/backups/predeploy-20260914/`。Tunnel 配置、旧内容服务和 D1 导出均已保留。
-- 唯一下一步：取得获授权业务员登录邮箱和 8 家分配范围后，写入现有 Access/成员范围，完成本人登录、本人任务可见和内部演练回传；完成前不得写成“业务员已启用”。
+- ALAN 已按私有花名册写入真实成员表，状态 `active`、角色 `sales`、权限为 `overview:read/outreach:read/outreach:write`；生产 D1 审计 `outreach.batch.assign` 已记录老板授权与批次 `RU_INITIAL8_20260912`。
+- 唯一下一步：使用具备 Cloudflare `Access: Apps and Policies Write` 权限的临时 API Token，把 ALAN 加入现有 Access 应用；随后由 ALAN 本人完成登录、只见本人 8 项任务和内部演练回传。完成前不得写成“ALAN 本人已能使用”。
 - 详细验收：`docs/integration/OUTREACH_O0_O4_20260914.md`。
 
 ## 已确认
