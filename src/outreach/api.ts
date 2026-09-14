@@ -14,9 +14,18 @@ export type OutreachAttachment = {id:string;lead_id:string;task_id:string;event_
 export type OutreachReview = {id:string;event_id:string;task_id:string;decision:string;summary:string;missing_json:string;created_at:string};
 export type OutreachSnapshot = {
   program:{id:string;title:string;status:string;revision:number;timezone:string;config_json:Record<string,unknown>};
-  viewer:{person_id:string;name:string;role:string;can_manage:boolean};
+  viewer:{person_id:string;name:string;role:string;can_manage:boolean;can_read_team:boolean;can_assign:boolean};
   stats?:{total:number;unassigned:number;attempted:number;connected:number;needs_details:number;evaluable:number};
+  assignees:Array<{person_id:string;name:string}>;
   leads:OutreachLead[];tasks:OutreachTask[];sources:OutreachSource[];events:OutreachEvent[];attachments:OutreachAttachment[];reviews:OutreachReview[];
+};
+export type OutreachAssignmentItem = {
+  task_id:string;success:boolean;status:string|number;lead_id?:string;previous_owner_person_id?:string;owner_person_id?:string;
+  previous_status?:string;revision?:number;forced?:boolean;reason?:string;server_time?:string;error?:string;
+};
+export type OutreachAssignmentReceipt = {
+  summary:{total:number;succeeded:number;failed:number};
+  items:OutreachAssignmentItem[];
 };
 async function request<T>(path:string,init?:RequestInit):Promise<T>{
   const response=await fetch(path,{credentials:"same-origin",...init});
@@ -26,6 +35,7 @@ async function request<T>(path:string,init?:RequestInit):Promise<T>{
 }
 export const readOutreach=()=>request<OutreachSnapshot>("/api/outreach");
 export const startOutreachTask=(taskId:string,revision:number)=>request<{task_id:string;status:string;revision:number}>(`/api/outreach/tasks/${encodeURIComponent(taskId)}/start`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({revision})});
+export const assignOutreachTasks=(assignments:Array<{task_id:string;person_id:string;revision:number;reason:string}>)=>request<OutreachAssignmentReceipt>("/api/outreach/tasks/assign-batch",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({assignments})});
 export const submitOutreachEvent=(taskId:string,value:Record<string,unknown>)=>request<{receipt:{event_id:string;server_time:string;review_status:string}}>(`/api/outreach/tasks/${encodeURIComponent(taskId)}/submit`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(value)});
 export async function uploadOutreachAttachment(taskId:string,file:File){
   const bytes=await file.arrayBuffer();

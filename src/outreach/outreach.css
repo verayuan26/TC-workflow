@@ -1,1 +1,79 @@
-.ow{max-width:1240px;margin:auto;padding:38px 28px 70px;color:#26313b}.ow-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}.ow-head p{margin:0;color:#a57e20;font-size:11px;font-weight:800;letter-spacing:.14em}.ow-head h1{margin:5px 0;font-size:31px}.ow-head span{color:#78848e}.ow-head button,.ow-cards button{display:inline-flex;gap:7px;align-items:center;padding:10px 14px;border:1px solid #d6dce1;border-radius:7px;background:#fff;cursor:pointer;min-height:44px}.ow-tabs{display:flex;border-bottom:1px solid #d8dee3;margin-bottom:22px}.ow-tabs button{border:0;background:none;padding:13px 18px;color:#74808a;cursor:pointer;min-height:44px}.ow-tabs button.active{color:#222;font-weight:700;border-bottom:3px solid #b8902e}.ow-tabs b{margin-left:7px;background:#e8ebed;border-radius:10px;padding:1px 7px}.ow-warning{display:flex;gap:12px;padding:16px;margin:16px 0;background:#fff7df;border:1px solid #eedca5;border-radius:8px;color:#705817}.ow-warning p{margin:3px 0 0}.ow-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.ow-stats article{background:#fff;border:1px solid #dce1e5;border-radius:10px;padding:18px;display:grid;grid-template-columns:1fr auto}.ow-stats svg{grid-column:2;grid-row:1/3;color:#b28c2d}.ow-stats span,.ow-stats small{color:#77838d}.ow-stats b{font-size:29px}.ow-panel{background:#fff;border:1px solid #dce1e5;border-radius:10px;padding:23px;margin-top:16px}.ow-panel h2{margin:0 0 18px}.ow-panel-head{display:flex;justify-content:space-between}.ow-panel-head span{display:flex;align-items:center;gap:5px}.ow-table{overflow:auto}.ow table{width:100%;border-collapse:collapse}.ow th,.ow td{text-align:left;border-bottom:1px solid #e7eaed;padding:13px;vertical-align:top}.ow td small{display:block;color:#838e97;margin-top:5px}.ow-table a{color:#755d21;text-decoration:underline}.ow-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ow-task{border:1px solid #dfe6e8;border-radius:10px;padding:20px;background:#fff}.ow-task>div:first-child{display:flex;justify-content:space-between;gap:12px;color:#8a6b20}.ow-task h3{margin:12px 0}.ow-task p{line-height:1.7;color:#5f6d78}.ow-task strong{color:#334b58}.ow-task details{margin:14px 0;border:1px solid #e4e9eb;border-radius:7px;padding:12px}.ow-task summary{cursor:pointer;font-weight:700}.ow-draft{white-space:pre-wrap}.ow-translation{color:#687983}.ow-task small{display:block;color:#89939a;margin-bottom:12px}.ow-task>button,.ow-feedback-form>button{margin-top:14px;background:#223946;color:#fff;border:0;border-radius:6px;padding:10px 14px;min-height:44px}.ow-feedback{background:#fff1e6;padding:8px}.ow-empty{text-align:center;padding:42px;color:#7a8690}.ow-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:12px 18px;background:#1f2b34;color:#fff;border:0;border-radius:8px;z-index:30}.ow-feedback-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid #e0e6e8}.ow-feedback-form label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#667985}.ow-feedback-form input,.ow-feedback-form select,.ow-feedback-form textarea{padding:10px;border:1px solid #ced8dc;border-radius:6px;background:#fff;min-height:44px}.ow-feedback-form textarea{min-height:84px}.ow-feedback-form .wide{grid-column:1/-1}.ow-upload small{margin-top:4px}.ow-guide ol{line-height:2;padding-left:22px}.ow-guide p{margin-top:16px;color:#667985}@media(max-width:900px){.ow-stats{grid-template-columns:repeat(2,1fr)}.ow-cards{grid-template-columns:1fr}}@media(max-width:700px){.ow-feedback-form{grid-template-columns:1fr}.ow-feedback-form .wide{grid-column:auto}}@media(max-width:560px){.ow{padding:24px 14px}.ow-head{align-items:flex-start}.ow-stats{grid-template-columns:1fr 1fr}}
+.ow{max-width:1240px;margin:auto;padding:38px 28px 70px;color:#26313b}
+.ow-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.ow-head p{margin:0;color:#a57e20;font-size:11px;font-weight:800;letter-spacing:.14em}
+.ow-head h1{margin:5px 0;font-size:31px}
+.ow-head span{color:#78848e}
+.ow-head button,.ow-cards button{display:inline-flex;gap:7px;align-items:center;padding:10px 14px;border:1px solid #d6dce1;border-radius:7px;background:#fff;cursor:pointer;min-height:44px}
+.ow-tabs{display:flex;border-bottom:1px solid #d8dee3;margin-bottom:22px}
+.ow-tabs button{border:0;background:none;padding:13px 18px;color:#74808a;cursor:pointer;min-height:44px}
+.ow-tabs button.active{color:#222;font-weight:700;border-bottom:3px solid #b8902e}
+.ow-tabs b{margin-left:7px;background:#e8ebed;border-radius:10px;padding:1px 7px}
+.ow-warning{display:flex;gap:12px;padding:16px;margin:16px 0;background:#fff7df;border:1px solid #eedca5;border-radius:8px;color:#705817}
+.ow-warning p{margin:3px 0 0}
+.ow-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+.ow-stats article{background:#fff;border:1px solid #dce1e5;border-radius:10px;padding:18px;display:grid;grid-template-columns:1fr auto}
+.ow-stats svg{grid-column:2;grid-row:1/3;color:#b28c2d}
+.ow-stats span,.ow-stats small{color:#77838d}
+.ow-stats b{font-size:29px}
+.ow-panel{background:#fff;border:1px solid #dce1e5;border-radius:10px;padding:23px;margin-top:16px}
+.ow-panel h2{margin:0 0 18px}
+.ow-panel-head{display:flex;justify-content:space-between}
+.ow-panel-head span{display:flex;align-items:center;gap:5px}
+.ow-table{overflow:auto}
+.ow table{width:100%;border-collapse:collapse}
+.ow th,.ow td{text-align:left;border-bottom:1px solid #e7eaed;padding:13px;vertical-align:top}
+.ow td small{display:block;color:#838e97;margin-top:5px}
+.ow-table a{color:#755d21;text-decoration:underline}
+.ow-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ow-task{border:1px solid #dfe6e8;border-radius:10px;padding:20px;background:#fff}
+.ow-task>div:first-child{display:flex;justify-content:space-between;gap:12px;color:#8a6b20}
+.ow-task h3{margin:12px 0}
+.ow-task p{line-height:1.7;color:#5f6d78}
+.ow-task strong{color:#334b58}
+.ow-task details{margin:14px 0;border:1px solid #e4e9eb;border-radius:7px;padding:12px}
+.ow-task summary{cursor:pointer;font-weight:700}
+.ow-draft{white-space:pre-wrap}
+.ow-translation{color:#687983}
+.ow-task small{display:block;color:#89939a;margin-bottom:12px}
+.ow-task>button,.ow-feedback-form>button{margin-top:14px;background:#223946;color:#fff;border:0;border-radius:6px;padding:10px 14px;min-height:44px}
+.ow-feedback{background:#fff1e6;padding:8px}
+.ow-empty{text-align:center;padding:42px;color:#7a8690}
+.ow-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:12px 18px;background:#1f2b34;color:#fff;border:0;border-radius:8px;z-index:30}
+.ow-feedback-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid #e0e6e8}
+.ow-feedback-form label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#667985}
+.ow-feedback-form input,.ow-feedback-form select,.ow-feedback-form textarea{padding:10px;border:1px solid #ced8dc;border-radius:6px;background:#fff;min-height:44px}
+.ow-feedback-form textarea{min-height:84px}
+.ow-feedback-form .wide{grid-column:1/-1}
+.ow-upload small{margin-top:4px}
+.ow-guide ol{line-height:2;padding-left:22px}
+.ow-guide p{margin-top:16px;color:#667985}
+.ow-assignment .ow-panel-head p{margin:4px 0 18px;color:#667985}
+.ow-assign-controls{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(260px,1.3fr) auto;gap:12px;align-items:end;margin-bottom:18px}
+.ow-assign-controls label{display:flex;flex-direction:column;gap:6px;color:#667985;font-size:13px}
+.ow-assign-controls input,.ow-assign-controls select{min-height:44px;padding:9px 11px;border:1px solid #ced8dc;border-radius:6px;background:#fff}
+.ow-assign-controls button,.ow-assign-confirm button{min-height:44px;padding:10px 14px;border:0;border-radius:6px;background:#223946;color:#fff;cursor:pointer}
+.ow-assign-controls button:disabled,.ow-assign-confirm button:disabled{cursor:not-allowed;opacity:.55}
+.ow-assignment td:first-child,.ow-assignment th:first-child{width:52px;text-align:center}
+.ow-assignment input[type=checkbox]{width:20px;height:20px;accent-color:#223946}
+.ow-assign-confirm,.ow-assign-receipt{margin-top:18px;padding:16px;border:1px solid #d7dee2;border-radius:8px;background:#f7f9f9}
+.ow-assign-confirm p,.ow-assign-receipt p{color:#53636d}
+.ow-assign-confirm button+button{margin-left:8px;background:#fff;color:#223946;border:1px solid #bfcbd1}
+.ow-assign-receipt ul{margin:10px 0 0;padding-left:20px}
+.ow-assign-receipt li{margin:7px 0;color:#276749}
+.ow-assign-receipt li.failed{color:#a33a2b}
+@media(max-width:900px){.ow-stats{grid-template-columns:repeat(2,1fr)}
+.ow-cards{grid-template-columns:1fr}
+.ow-assign-controls{grid-template-columns:1fr 1fr}
+.ow-assign-controls>button{grid-column:1/-1}
+}
+@media(max-width:700px){.ow-feedback-form{grid-template-columns:1fr}
+.ow-feedback-form .wide{grid-column:auto}
+.ow-tabs{overflow-x:auto}
+.ow-tabs button{white-space:nowrap}
+.ow-assign-controls{grid-template-columns:1fr}
+.ow-assign-controls>button{grid-column:auto}
+}
+@media(max-width:560px){.ow{padding:24px 14px}
+.ow-head{align-items:flex-start}
+.ow-stats{grid-template-columns:1fr 1fr}
+}

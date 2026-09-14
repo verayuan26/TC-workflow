@@ -502,9 +502,10 @@ async function overview(request: Request, env: Env) {
   let outreachStats: Record<string,unknown>|null=null;
   try{
     requirePermission(actor,"outreach:read");
-    const where=actor.role==="boss"||actor.role==="codex"?"is_test=0":"is_test=0 AND owner_person_id=?";
+    const teamRead=actor.role==="boss"||actor.role==="codex"||actor.permissions.includes("outreach:read:team");
+    const where=teamRead?"is_test=0":"is_test=0 AND owner_person_id=?";
     const query=env.DB.prepare(`SELECT COUNT(*) AS total,SUM(CASE WHEN owner_person_id IS NULL THEN 1 ELSE 0 END) AS unassigned,SUM(CASE WHEN progress_status!='uncontacted' THEN 1 ELSE 0 END) AS attempted,SUM(CASE WHEN progress_status IN ('connected','needs_details','evaluable') THEN 1 ELSE 0 END) AS connected,SUM(CASE WHEN progress_status='needs_details' THEN 1 ELSE 0 END) AS needs_details,SUM(CASE WHEN progress_status='evaluable' THEN 1 ELSE 0 END) AS evaluable FROM outreach_leads WHERE ${where}`);
-    outreachStats=await (actor.role==="boss"||actor.role==="codex"?query:query.bind(actor.id)).first<Record<string,unknown>>();
+    outreachStats=await (teamRead?query:query.bind(actor.id)).first<Record<string,unknown>>();
   }catch{/* module not granted */}
   const decisions: Array<{
     id: unknown;
@@ -522,7 +523,7 @@ async function overview(request: Request, env: Env) {
           reason: task.reason,
         });
   }
-  if(outreachStats&&Number(outreachStats.unassigned)>0&&actor.role==="boss")decisions.push({id:"outreach-unassigned",module:"客户开发",title:`${outreachStats.unassigned} 家线索待分配`,reason:"尚无获授权业务员分配规则"});
+  if(outreachStats&&Number(outreachStats.unassigned)>0&&(actor.role==="boss"||actor.permissions.includes("outreach:assign")))decisions.push({id:"outreach-unassigned",module:"客户开发",title:`${outreachStats.unassigned} 家线索待分配`,reason:"请在客户开发模块完成分配"});
   return json({
     content: { available: !!content, snapshot: content },
     outreach: {

@@ -1,7 +1,7 @@
 import {FormEvent,useEffect,useMemo,useState,type ReactNode} from "react";
-import {AlertTriangle,CheckCircle2,FileUp,RefreshCw,Search,Send,Target,Users} from "lucide-react";
+import {AlertTriangle,CheckCircle2,ClipboardCheck,FileUp,RefreshCw,Search,Send,Target,Users} from "lucide-react";
 import type {Viewer} from "../app/AppShell";
-import {readOutreach,startOutreachTask,submitOutreachEvent,uploadOutreachAttachment,type OutreachSnapshot,type OutreachTask} from "./api";
+import {assignOutreachTasks,readOutreach,startOutreachTask,submitOutreachEvent,uploadOutreachAttachment,type OutreachAssignmentReceipt,type OutreachSnapshot,type OutreachTask} from "./api";
 import "./outreach.css";
 
 const progressLabels:Record<string,string>={uncontacted:"待开发",attempted:"已尝试联系",connected:"已取得有效联系",needs_details:"需求待补充",evaluable:"需求可评估",paused:"暂缓",not_fit:"不适配",do_not_contact:"停止联系"};
@@ -9,19 +9,56 @@ const taskLabels:Record<string,string>={unassigned:"待分配",pending:"待处�
 const resultOptions=[["unreachable","未接通"],["bounced","邮箱退信"],["message_sent","已留言/已发出待回复"],["contact_found","已找到负责人"],["willing_to_share","愿意提供需求"],["no_current_need","暂时无需求"],["not_fit","不适配"],["do_not_contact","要求停止联系"]] as const;
 
 export function OutreachWorkbench({viewer}:{viewer:Viewer|null}){
-  const [data,setData]=useState<OutreachSnapshot|null>(null);const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");const [notice,setNotice]=useState("");const [tab,setTab]=useState<"tasks"|"leads"|"guide">("tasks");
+  const [data,setData]=useState<OutreachSnapshot|null>(null);const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");const [notice,setNotice]=useState("");const [tab,setTab]=useState<"tasks"|"leads"|"assign"|"guide">("tasks");
   const load=()=>{setStatus("loading");readOutreach().then(x=>{setData(x);setStatus("ready")}).catch(e=>{setNotice(e instanceof Error?e.message:"加载失败");setStatus("error")})};
   useEffect(load,[]);const leadById=useMemo(()=>new Map((data?.leads||[]).map(x=>[x.id,x])),[data]);
   return <div className="ow"><header className="ow-head"><div><p>OUTREACH / 客户开发</p><h1>{data?.program.title||"客户开发"}</h1><span>{data?.program.status==="draft"?"试验保持草稿；候选与草稿可准备，未授权任务不派发":"真实客户开发任务"}</span></div><button onClick={load}><RefreshCw size={16}/>刷新</button></header>
-    <nav className="ow-tabs"><button className={tab==="tasks"?"active":""} onClick={()=>setTab("tasks")}>我的任务<b>{data?.tasks.filter(x=>x.handoff_status!=="reviewed").length||0}</b></button><button className={tab==="leads"?"active":""} onClick={()=>setTab("leads")}>客户</button><button className={tab==="guide"?"active":""} onClick={()=>setTab("guide")}>怎么交付</button></nav>
+    <nav className="ow-tabs"><button className={tab==="tasks"?"active":""} onClick={()=>setTab("tasks")}>{data?.viewer.can_read_team?"团队任务":"我的任务"}<b>{data?.tasks.filter(x=>x.handoff_status!=="reviewed").length||0}</b></button><button className={tab==="leads"?"active":""} onClick={()=>setTab("leads")}>客户</button>{data?.viewer.can_assign&&<button className={tab==="assign"?"active":""} onClick={()=>setTab("assign")}>任务分配<b>{data.tasks.filter(x=>x.handoff_status==="unassigned").length}</b></button>}<button className={tab==="guide"?"active":""} onClick={()=>setTab("guide")}>怎么交付</button></nav>
     {status!=="ready"&&<div className="ow-warning"><AlertTriangle size={18}/><div><b>{status==="loading"?"正在读取真实数据":"加载失败"}</b><p>{notice||"请稍候"}</p></div></div>}
     {data?.viewer.can_manage&&data.stats&&<section className="ow-stats"><Stat icon={<Target/>} label="首批线索" value={data.stats.total} note={`待分配 ${data.stats.unassigned}`}/><Stat icon={<Send/>} label="实际尝试" value={data.stats.attempted} note="只计真实事件"/><Stat icon={<Users/>} label="有效联系" value={data.stats.connected} note="按客户去重"/><Stat icon={<CheckCircle2/>} label="需求可评估" value={data.stats.evaluable} note={`待补充 ${data.stats.needs_details}`}/></section>}
     {tab==="tasks"&&<section className="ow-panel"><div className="ow-panel-head"><h2>现在做什么</h2><span>{data?.tasks.length||0} 条</span></div><div className="ow-cards">{data?.tasks.map(task=><TaskCard key={task.id} task={task} lead={leadById.get(task.lead_id)} viewer={viewer} attachments={data.attachments.filter(x=>x.task_id===task.id)} onChanged={load} onNotice={setNotice}/>)}</div>{data&&!data.tasks.length&&<Empty title="当前没有可见任务" text="未分配客户只对老板和 Codex 可见；业务员只会看到本人任务。"/>}</section>}
-    {tab==="leads"&&<section className="ow-panel"><div className="ow-panel-head"><h2>本人客户与来源</h2><span><Search size={15}/>{data?.leads.length||0} 家</span></div><div className="ow-table"><table><thead><tr><th>企业 / 城市</th><th>为什么联系</th><th>进展</th><th>来源与未确认</th></tr></thead><tbody>{data?.leads.map(lead=>{const sources=data.sources.filter(x=>x.lead_id===lead.id);return <tr key={lead.id}><td><b>{lead.company_name}</b><small>{lead.city} · {lead.country}</small><small>{lead.primary_email||lead.primary_phone||"待补联系入口"}</small></td><td>{lead.suggested_entry}<small>{lead.fit_reason}</small></td><td>{progressLabels[lead.progress_status]||lead.progress_status}<small>需求：{lead.demand_status==="unknown"?"未确认":lead.demand_status}；中国供货：{lead.china_supply_status==="unknown"?"未知":lead.china_supply_status}</small></td><td>{sources.map(s=><div key={s.id}><a href={s.source_url} target="_blank" rel="noreferrer">{s.item_ref} · {s.observed_at}</a><small>{s.evidence_limit}</small></div>)}</td></tr>})}</tbody></table></div></section>}
+    {tab==="leads"&&<section className="ow-panel"><div className="ow-panel-head"><h2>{data?.viewer.can_read_team?"团队客户与来源":"本人客户与来源"}</h2><span><Search size={15}/>{data?.leads.length||0} 家</span></div><div className="ow-table"><table><thead><tr><th>企业 / 城市</th><th>为什么联系</th><th>进展</th><th>来源与未确认</th></tr></thead><tbody>{data?.leads.map(lead=>{const sources=data.sources.filter(x=>x.lead_id===lead.id);return <tr key={lead.id}><td><b>{lead.company_name}</b><small>{lead.city} · {lead.country}</small><small>{lead.primary_email||lead.primary_phone||"待补联系入口"}</small></td><td>{lead.suggested_entry}<small>{lead.fit_reason}</small></td><td>{progressLabels[lead.progress_status]||lead.progress_status}<small>需求：{lead.demand_status==="unknown"?"未确认":lead.demand_status}；中国供货：{lead.china_supply_status==="unknown"?"未知":lead.china_supply_status}</small></td><td>{sources.map(s=><div key={s.id}><a href={s.source_url} target="_blank" rel="noreferrer">{s.item_ref} · {s.observed_at}</a><small>{s.evidence_limit}</small></div>)}</td></tr>})}</tbody></table></div></section>}
+    {tab==="assign"&&data?.viewer.can_assign&&<AssignmentPanel data={data} onChanged={load} onNotice={setNotice}/>}
     {tab==="guide"&&<Guide/>}{notice&&<button className="ow-toast" onClick={()=>setNotice("")}>{notice}</button>}</div>;
 }
 function Stat({icon,label,value,note}:{icon:ReactNode;label:string;value:number;note:string}){return <article>{icon}<span>{label}</span><b>{value}</b><small>{note}</small></article>}
 function Empty({title,text}:{title:string;text:string}){return <div className="ow-empty"><h3>{title}</h3><p>{text}</p></div>}
+
+function AssignmentPanel({data,onChanged,onNotice}:{data:OutreachSnapshot;onChanged:()=>void;onNotice:(x:string)=>void}){
+  const eligible=data.tasks.filter(task=>["unassigned","pending"].includes(task.handoff_status));
+  const [selected,setSelected]=useState<Set<string>>(()=>new Set());
+  const [personId,setPersonId]=useState("");
+  const [reason,setReason]=useState("");
+  const [preview,setPreview]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const [receipt,setReceipt]=useState<OutreachAssignmentReceipt|null>(null);
+  const assignee=data.assignees.find(item=>item.person_id===personId);
+  const selectedTasks=eligible.filter(task=>selected.has(task.id));
+  const toggle=(taskId:string)=>{const next=new Set(selected);if(next.has(taskId))next.delete(taskId);else next.add(taskId);setSelected(next);setPreview(false)};
+  const toggleAll=()=>{setSelected(selected.size===eligible.length?new Set():new Set(eligible.map(task=>task.id)));setPreview(false)};
+  const prepare=()=>{
+    if(!selectedTasks.length){onNotice("请至少选择一项任务");return}
+    if(!assignee){onNotice("请选择接收任务的业务员");return}
+    setReceipt(null);setPreview(true);
+  };
+  const assign=async()=>{
+    if(!assignee||!selectedTasks.length)return;
+    setBusy(true);
+    try{
+      const result=await assignOutreachTasks(selectedTasks.map(task=>({task_id:task.id,person_id:assignee.person_id,revision:task.revision,reason:reason.trim()||"主管工作台批量分配"})));
+      setReceipt(result);setPreview(false);setSelected(new Set());
+      onNotice(`服务器回执：成功 ${result.summary.succeeded}，失败 ${result.summary.failed}`);onChanged();
+    }catch(error){onNotice(error instanceof Error?error.message:"分配失败")}
+    finally{setBusy(false)}
+  };
+  return <section className="ow-panel ow-assignment"><div className="ow-panel-head"><div><h2>任务分配</h2><p>仅显示待分配和待处理任务；提交后以服务器回执为准。</p></div><span><ClipboardCheck size={16}/>{eligible.length} 条可分配</span></div>
+    <div className="ow-assign-controls"><label>接收人<select value={personId} onChange={event=>{setPersonId(event.target.value);setPreview(false)}}><option value="">请选择业务员</option>{data.assignees.map(item=><option key={item.person_id} value={item.person_id}>{item.name}</option>)}</select></label><label>分配原因<input value={reason} onChange={event=>{setReason(event.target.value);setPreview(false)}} placeholder="可选；未填则记录为主管工作台批量分配"/></label><button type="button" disabled={busy||!eligible.length} onClick={prepare}>预览分配</button></div>
+    <div className="ow-table"><table><thead><tr><th><input type="checkbox" aria-label="选择全部可分配任务" checked={eligible.length>0&&selected.size===eligible.length} onChange={toggleAll}/></th><th>企业 / 城市</th><th>任务状态</th><th>当前负责人</th></tr></thead><tbody>{eligible.map(task=>{const lead=data.leads.find(item=>item.id===task.lead_id);const owner=data.assignees.find(item=>item.person_id===task.owner_person_id);return <tr key={task.id}><td><input type="checkbox" aria-label={`选择 ${lead?.company_name||task.title}`} checked={selected.has(task.id)} onChange={()=>toggle(task.id)}/></td><td><b>{lead?.company_name||task.title}</b><small>{lead?.city||""}</small></td><td>{taskLabels[task.handoff_status]||task.handoff_status}</td><td>{owner?.name||"未分配"}</td></tr>})}</tbody></table></div>
+    {!eligible.length&&<Empty title="当前没有可分配任务" text="已提交、待补充、处理中和已检查任务不会出现在常规分配区。"/>}
+    {preview&&assignee&&<div className="ow-assign-confirm"><b>确认分配</b><p>将 {selectedTasks.length} 项任务分配给 {assignee.name}；其中转派 {selectedTasks.filter(task=>!!task.owner_person_id&&task.owner_person_id!==assignee.person_id).length} 项。</p><button type="button" disabled={busy} onClick={()=>void assign()}>确认并提交服务器</button><button type="button" disabled={busy} onClick={()=>setPreview(false)}>返回修改</button></div>}
+    {receipt&&<div className="ow-assign-receipt"><b>服务器真实回执</b><p>总计 {receipt.summary.total}；成功 {receipt.summary.succeeded}；失败 {receipt.summary.failed}</p><ul>{receipt.items.map((item,index)=><li key={`${item.task_id}-${index}`} className={item.success?"ok":"failed"}>{item.success?`成功：${item.task_id} → ${data.assignees.find(person=>person.person_id===item.owner_person_id)?.name||item.owner_person_id}`:`失败：${item.task_id}｜${item.error}`}</li>)}</ul></div>}
+  </section>;
+}
 
 function TaskCard({task,lead,viewer,attachments,onChanged,onNotice}:{task:OutreachTask;lead?:OutreachSnapshot["leads"][number];viewer:Viewer|null;attachments:OutreachSnapshot["attachments"];onChanged:()=>void;onNotice:(x:string)=>void}){
   const mine=viewer?.role==="sales"&&task.owner_person_id===viewer.person_id;const [open,setOpen]=useState(task.handoff_status==="in_progress"||task.handoff_status==="needs_more");const [busy,setBusy]=useState(false);

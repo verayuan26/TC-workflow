@@ -2,7 +2,7 @@
 
 - 更新时间：2026-09-14（Asia/Shanghai）
 - 分支：`codex/tiger-workbench-integration-v1`
-- 当前阶段：Outreach O0—O3 技术项完成；O4 已按老板授权把 8 家统一分配给 ALAN、同步最终业务团队花名册并完成 Cloudflare Access 放行；等待业务员本人登录/回传验收；内容模块 M0—M6 可执行项完成，M7 的三人跨设备回传证据仍待补
+- 当前阶段：Outreach O0—O4 技术部署完成；业务主管任务分配权限、真实 D1 权限映射和生产界面已发布，8 家仍统一归 ALAN；等待 ALAN 与业务员本人登录/隔离/回传验收；内容模块 M0—M6 可执行项完成，M7 的三人跨设备回传证据仍待补
 - 上游基线：`356f6bb059889ca9314ea54cee098364dbea3b02`
 - 内容来源：d940fe0 对应增量，9 个文件哈希一致
 - 外联来源：ebcd960，业务规则已迁入共享 D1；本次部署代码见 `cb1f6c0`
@@ -14,7 +14,7 @@
 
 ## Outreach O0—O4（2026-09-14）
 
-- 部署代码提交：`cb1f6c0`；Worker 生产版本：`f38f0dfe-2f2d-4e80-a54b-533e2f6df6f8`。
+- 首次部署代码提交：`cb1f6c0`；业务主管分配权限发布版本：`4bac1ce0-2d14-4231-be55-77e980776d44`。
 - D1：沿用 `tiger-unified-workbench`（`f6bf2bbf-68d7-49c7-b5ec-76fc7e85e548`），已应用 `0004`、`0005`；没有第二套客户数据库。
 - 附件：`com.tiger.outreach.files` 在 `127.0.0.1:8788` 运行，Tunnel 只代理 `/outreach-files/*`；文件落在受控本机目录，不启用 R2。
 - Multica：TIG-370 合成交接测试完成；TIG-371 正式 8 家入库完成并由 Codex 复核关闭。正式回执为新增 8、重复关联 0、待补 0、冲突/失败 0；重复投递 `idempotent=true`。
@@ -22,9 +22,10 @@
 - 技术闭环：虚拟隔离身份已通过查看、开始、附件 SHA/回执、真实提交事件、Codex pass/needs_more、同任务补交、下一任务、重启恢复；部分失败批次按条返回 `matched + needs_more`，不会拖垮合格条目。
 - 入口证据：公网 `/outreach`、`/workbench/`、`/legacy`、附件均由 Access 返回 302；服务域无令牌 401，非 Outreach 路径 404，伪造邮箱头仍被 Access 拦截；生产 API 以服务身份返回 8 客户/8 任务。
 - 恢复点：`/Users/mac/Library/Application Support/TigerOutreach/backups/predeploy-20260914/`。Tunnel 配置、旧内容服务和 D1 导出均已保留。
-- 最终业务团队口径：ALAN 为业务主管；阿旺、瑛瑞、Henry、张创治为业务员。5 人在真实成员表均为 `active`、系统角色 `sales`、权限为 `overview:read/outreach:read/outreach:write`；私有花名册以 `job_title` 区分主管与业务员。生产 D1 审计已记录职位同步及 ALAN 的 8 家分配。
+- 最终业务团队口径：ALAN 为业务主管；阿旺、瑛瑞、Henry、张创治为业务员。5 人在真实成员表均为 `active`、系统角色 `sales`；ALAN 为 `overview:read/outreach:read/outreach:write/outreach:read:team/outreach:assign`，其他 4 人仍只有前三项本人权限。私有花名册以 `job_title` 区分主管与业务员。生产 D1 审计已记录职位、权限和 ALAN 的 8 家分配。
+- 任务分配验收：服务端按真实成员表授权；接收人必须 active sales + `outreach:write`；任务与客户 owner 原子同步；unassigned 转 pending；CAS/revision 生效；submitted/reviewed 禁止；in_progress/needs_more 仅老板带原因强制转派；批量逐项返回成功/失败并写审计。隔离本地 D1 的真实 HTTP 回执、16 项自动测试、typecheck、lint、build 全部通过。
 - Access 已保存并复核：`Allow Tiger pilot testers` 保留老板、阿旺、Age，新增 ALAN、瑛瑞、Henry、张创治，共 7 个唯一邮箱标签；公网 `/outreach`、`/workbench/`、`/legacy` 仍全部 302 到 Access 登录域。
-- 唯一下一步：由 ALAN、阿旺、瑛瑞、Henry、张创治分别完成本人 One-time PIN 登录，验证只见本人任务并提交一轮内部演练回传；完成前不得写成“业务员本人已能使用”。
+- 唯一下一步：由 ALAN 本人用 One-time PIN 登录并确认可见“任务分配”和团队数据；阿旺、瑛瑞、Henry、张创治分别确认只见本人数据，再完成一轮内部演练回传。完成前只能写“权限功能已部署”，不得写成“ALAN/业务员本人已实际使用”。
 - 详细验收：`docs/integration/OUTREACH_O0_O4_20260914.md`。
 
 ## 已确认

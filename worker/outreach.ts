@@ -6,6 +6,12 @@ import {
   reviewSubmission,
   validateLeadInput,
 } from "./outreach-domain";
+import {
+  assignmentStateDecision,
+  canAssignOutreachTasks,
+  canReadOutreachTeam,
+  isEligibleOutreachAssignee,
+} from "./outreach-assignment";
 
 const json = (value: unknown, status = 200) =>
   new Response(JSON.stringify(value), {
@@ -40,18 +46,20 @@ async function program(env: Env) {
 async function taskForActor(env: Env, actor: AuthActor, taskId: string) {
   const task = await env.DB.prepare("SELECT * FROM outreach_tasks WHERE id=?").bind(taskId).first<Record<string, unknown>>();
   if (!task) throw new HttpError("任务不存在", 404);
-  if (!privileged(actor) && task.owner_person_id !== actor.id) throw new HttpError("只能访问本人任务", 403);
+  if (!canReadOutreachTeam(actor) && task.owner_person_id !== actor.id) throw new HttpError("只能访问本人任务", 403);
   return task;
 }
 
 async function readSnapshot(env: Env, actor: AuthActor) {
   requirePermission(actor, "outreach:read");
-  const scope = privileged(actor) ? "is_test=0" : "is_test=0 AND owner_person_id=?";
-  const bind = privileged(actor) ? [] : [actor.id];
+  const teamRead = canReadOutreachTeam(actor);
+  const canAssign = canAssignOutreachTasks(actor);
+  const scope = teamRead ? "is_test=0" : "is_test=0 AND owner_person_id=?";
+  const bind = teamRead ? [] : [actor.id];
   const [p, leadsResult, tasksResult] = await Promise.all([
     program(env),
     env.DB.prepare(`SELECT * FROM outreach_leads WHERE ${scope} ORDER BY created_at,company_name`).bind(...bind).all(),
-    env.DB.prepare(`SELECT t.* FROM outreach_tasks t JOIN outreach_leads l ON l.id=t.lead_id WHERE l.is_test=0 AND ${privileged(actor)?"1=1":"t.owner_person_id=?"} AND t.active=1 ORDER BY CASE t.handoff_status WHEN 'needs_more' THEN 0 WHEN 'submitted' THEN 1 WHEN 'in_progress' THEN 2 WHEN 'pending' THEN 3 ELSE 4 END,t.created_at`).bind(...bind).all(),
+    env.DB.prepare(`SELECT t.* FROM outreach_tasks t JOIN outreach_leads l ON l.id=t.lead_id WHERE l.is_test=0 AND ${teamRead?"1=1":"t.owner_person_id=?"} AND t.active=1 ORDER BY CASE t.handoff_status WHEN 'needs_more' THEN 0 WHEN 'submitted' THEN 1 WHEN 'in_progress' THEN 2 WHEN 'pending' THEN 3 ELSE 4 END,t.created_at`).bind(...bind).all(),
   ]);
   const leadIds = leadsResult.results.map(x => String(x.id));
   let sources: unknown[] = [], events: unknown[] = [], attachments: unknown[] = [], reviews: unknown[] = [];
@@ -64,7 +72,7 @@ async function readSnapshot(env: Env, actor: AuthActor) {
       env.DB.prepare(`SELECT r.* FROM outreach_reviews r JOIN outreach_tasks t ON t.id=r.task_id WHERE t.lead_id IN (${marks}) ORDER BY r.created_at DESC`).bind(...leadIds).all().then(x => x.results),
     ]);
   }
-  const allStats = privileged(actor) ? await env.DB.prepare(`SELECT
+  const allStats = teamRead ? await env.DB.prepare(`SELECT
     COUNT(*) AS total,
     SUM(CASE WHEN owner_person_id IS NULL THEN 1 ELSE 0 END) AS unassigned,
     SUM(CASE WHEN progress_status!='uncontacted' THEN 1 ELSE 0 END) AS attempted,
@@ -72,13 +80,23 @@ async function readSnapshot(env: Env, actor: AuthActor) {
     SUM(CASE WHEN progress_status='needs_details' THEN 1 ELSE 0 END) AS needs_details,
     SUM(CASE WHEN progress_status='evaluable' THEN 1 ELSE 0 END) AS evaluable
     FROM outreach_leads WHERE is_test=0`).first() : null;
+  const assignees = canAssign
+    ? await env.DB.prepare("SELECT person_id,name FROM members WHERE status='active' AND staff_role='sales' AND permissions_json LIKE '%\"outreach:write\"%' ORDER BY name").all().then(x => x.results)
+    : [];
   return {
     program: { ...p, config_json: JSON.parse(String(p.config_json || "{}")) },
-    viewer: { person_id: actor.id, name: actor.name, role: actor.role, can_manage: privileged(actor) },
+    viewer: {
+      person_id: actor.id,
+      name: actor.name,
+      role: actor.role,
+      can_manage: teamRead,
+      can_read_team: teamRead,
+      can_assign: canAssign,
+    },
     stats: allStats,
     leads: leadsResult.results,
     tasks: tasksResult.results.map(x => ({ ...x, material_refs_json: JSON.parse(String(x.material_refs_json || "[]")) })),
-    sources, events, attachments, reviews,
+    sources, events, attachments, reviews, assignees,
   };
 }
 
@@ -209,19 +227,106 @@ async function startTask(env: Env, actor: AuthActor, taskId: string, payload: Re
   return json({task_id:taskId,status:"in_progress",revision:Number(task.revision)+1,server_time:t});
 }
 
-async function assignTask(env: Env, actor: AuthActor, taskId: string, payload: Record<string, unknown>) {
-  if (actor.role !== "boss") throw new HttpError("仅老板可分配客户",403);
+async function assignOne(env: Env, actor: AuthActor, taskId: string, payload: Record<string, unknown>) {
+  if (!canAssignOutreachTasks(actor)) throw new HttpError("没有任务分配权限",403);
   const task=await taskForActor(env,actor,taskId);
   const personId=clean(payload.person_id,100);
-  const member=await env.DB.prepare("SELECT person_id,name,staff_role,permissions_json FROM members WHERE person_id=? AND status='active'").bind(personId).first<Record<string,unknown>>();
-  if(!member||member.staff_role!=="sales"||!JSON.parse(String(member.permissions_json||"[]")).includes("outreach:write"))throw new HttpError("负责人必须是已授权业务员",400);
+  const revision=Number(payload.revision);
+  if(!Number.isInteger(revision)||revision<1)throw new HttpError("任务 revision 无效");
+  if(revision!==Number(task.revision))throw new HttpError("任务 revision 已变化，请刷新后重试",409);
+  const reason=clean(payload.reason,500);
+  const decision=assignmentStateDecision(actor,task.handoff_status,payload.force===true,reason);
+  if(!decision.allowed)throw new HttpError(decision.error||"任务当前不能分配",decision.status);
+  const member=await env.DB.prepare("SELECT person_id,name,staff_role,status,permissions_json FROM members WHERE person_id=?").bind(personId).first<Record<string,unknown>>();
+  if(!member||!isEligibleOutreachAssignee(member))throw new HttpError("负责人必须是 active 且具备 outreach:write 的业务员",400);
   const t=now();
-  await env.DB.batch([
-    env.DB.prepare("UPDATE outreach_tasks SET owner_person_id=?,handoff_status=CASE WHEN handoff_status='unassigned' THEN 'pending' ELSE handoff_status END,revision=revision+1,updated_at=? WHERE id=?").bind(personId,t,taskId),
-    env.DB.prepare("UPDATE outreach_leads SET owner_person_id=?,version=version+1,updated_at=? WHERE id=?").bind(personId,t,task.lead_id),
+  const previousOwner=task.owner_person_id||null;
+  const nextStatus=task.handoff_status==="unassigned"?"pending":String(task.handoff_status);
+  const results=await env.DB.batch([
+    env.DB.prepare("UPDATE outreach_tasks SET owner_person_id=?,handoff_status=?,revision=revision+1,updated_at=? WHERE id=? AND revision=? AND handoff_status=?").bind(personId,nextStatus,t,taskId,revision,task.handoff_status),
+    env.DB.prepare("UPDATE outreach_leads SET owner_person_id=?,version=version+1,updated_at=? WHERE id=? AND EXISTS (SELECT 1 FROM outreach_tasks WHERE id=? AND owner_person_id=? AND revision=? AND updated_at=?)").bind(personId,t,task.lead_id,taskId,personId,revision+1,t),
   ]);
-  await audit(env,actor,"outreach.task.assign",taskId,"accepted",{person_id:personId});
-  return json({task_id:taskId,owner_person_id:personId,status:task.handoff_status==="unassigned"?"pending":task.handoff_status,revision:Number(task.revision)+1,server_time:t});
+  if(!results[0].meta.changes||!results[1].meta.changes)throw new HttpError("任务 revision 已变化，请刷新后重试",409);
+  const receipt={
+    task_id:taskId,
+    lead_id:String(task.lead_id),
+    previous_owner_person_id:previousOwner,
+    owner_person_id:personId,
+    previous_status:String(task.handoff_status),
+    status:nextStatus,
+    revision:revision+1,
+    forced:decision.forced,
+    reason:reason||"常规任务分配",
+    server_time:t,
+  };
+  await audit(env,actor,"outreach.task.assign",taskId,"accepted",receipt);
+  return receipt;
+}
+
+async function rejectedAssignmentDetails(env: Env, taskId: string, payload: Record<string, unknown>, error: HttpError) {
+  const task=taskId
+    ? await env.DB.prepare("SELECT lead_id,owner_person_id,handoff_status,revision FROM outreach_tasks WHERE id=?").bind(taskId).first<Record<string,unknown>>()
+    : null;
+  return {
+    task_id:taskId||null,
+    lead_id:task?.lead_id||null,
+    previous_owner_person_id:task?.owner_person_id||null,
+    owner_person_id:clean(payload.person_id,100)||null,
+    previous_status:task?.handoff_status||null,
+    revision:task?.revision??null,
+    forced:payload.force===true,
+    reason:clean(payload.reason,500)||null,
+    status:error.status,
+    error:error.message,
+    server_time:now(),
+  };
+}
+
+async function assignTask(env: Env, actor: AuthActor, taskId: string, payload: Record<string, unknown>) {
+  try{return json(await assignOne(env,actor,taskId,payload))}
+  catch(error){
+    const known=error instanceof HttpError?error:new HttpError("任务分配失败",500);
+    await audit(env,actor,"outreach.task.assign",taskId,"rejected",await rejectedAssignmentDetails(env,taskId,payload,known));
+    throw known;
+  }
+}
+
+async function assignTasksBatch(env: Env, actor: AuthActor, payload: Record<string, unknown>) {
+  const assignments=payload.assignments;
+  if (!canAssignOutreachTasks(actor)) {
+    const known=new HttpError("没有任务分配权限",403);
+    if(Array.isArray(assignments)&&assignments.length){
+      for(const raw of assignments.slice(0,100)){
+        const value=raw&&typeof raw==="object"?raw as Record<string,unknown>:{};
+        const taskId=clean(value.task_id,100);
+        await audit(env,actor,"outreach.task.assign",taskId||"missing-task-id","rejected",await rejectedAssignmentDetails(env,taskId,value,known));
+      }
+    }else{
+      await audit(env,actor,"outreach.task.assign.batch","batch","rejected",{status:403,error:known.message,server_time:now()});
+    }
+    throw known;
+  }
+  if(!Array.isArray(assignments)||!assignments.length||assignments.length>100)throw new HttpError("批量分配应包含 1—100 项");
+  const items=[] as Array<Record<string,unknown>>;
+  for(const raw of assignments){
+    const value=raw&&typeof raw==="object"?raw as Record<string,unknown>:{};
+    const taskId=clean(value.task_id,100);
+    if(!taskId){
+      const known=new HttpError("缺少 task_id");
+      await audit(env,actor,"outreach.task.assign","missing-task-id","rejected",await rejectedAssignmentDetails(env,"",value,known));
+      items.push({task_id:null,success:false,status:400,error:known.message});continue
+    }
+    try{items.push({success:true,...await assignOne(env,actor,taskId,value)})}
+    catch(error){
+      const known=error instanceof HttpError?error:new HttpError("任务分配失败",500);
+      await audit(env,actor,"outreach.task.assign",taskId,"rejected",await rejectedAssignmentDetails(env,taskId,value,known));
+      items.push({task_id:taskId,success:false,status:known.status,error:known.message});
+    }
+  }
+  return json({
+    summary:{total:items.length,succeeded:items.filter(x=>x.success).length,failed:items.filter(x=>!x.success).length},
+    items,
+  });
 }
 
 async function submitEvent(env: Env, actor: AuthActor, taskId: string, payload: Record<string, unknown>) {
@@ -338,7 +443,7 @@ async function completeAttachment(env: Env, actor: AuthActor, attachmentId: stri
 async function downloadAttachment(env: Env, actor: AuthActor, attachmentId: string) {
   const row=await env.DB.prepare("SELECT a.*,t.owner_person_id AS current_owner FROM outreach_attachments a JOIN outreach_tasks t ON t.id=a.task_id WHERE a.id=? AND a.status='verified'").bind(attachmentId).first<Record<string,unknown>>();
   if(!row)throw new HttpError("附件不存在",404);
-  if(!privileged(actor)&&row.current_owner!==actor.id)throw new HttpError("附件不属于当前客户范围",403);
+  if(!canReadOutreachTeam(actor)&&row.current_owner!==actor.id)throw new HttpError("附件不属于当前客户范围",403);
   const token=await signFileToken(env,{op:"download",attachment_id:attachmentId,storage_key:row.storage_key,exp:Math.floor(Date.now()/1000)+300});
   return Response.redirect(`https://workbench.tigersourcingchina.com/outreach-files/download/${attachmentId}?token=${encodeURIComponent(token)}`,302);
 }
@@ -352,6 +457,7 @@ export async function handleOutreach(request: Request, env: Env, actor: AuthActo
     const rows=await env.DB.prepare("SELECT e.*,t.revision AS task_revision FROM outreach_contact_events e JOIN outreach_tasks t ON t.id=e.task_id WHERE e.review_status='submitted' ORDER BY e.created_at").all();return json({items:rows.results});
   }
   if(path==="/api/outreach/reviews"&&request.method==="POST")return reviewEvent(env,actor,await parse(request));
+  if(path==="/api/outreach/tasks/assign-batch"&&request.method==="POST")return assignTasksBatch(env,actor,await parse(request));
   let match=path.match(/^\/api\/outreach\/tasks\/([^/]+)\/start$/);if(match&&request.method==="POST")return startTask(env,actor,match[1],await parse(request));
   match=path.match(/^\/api\/outreach\/tasks\/([^/]+)\/assign$/);if(match&&request.method==="POST")return assignTask(env,actor,match[1],await parse(request));
   match=path.match(/^\/api\/outreach\/tasks\/([^/]+)\/submit$/);if(match&&request.method==="POST")return submitEvent(env,actor,match[1],await parse(request));
