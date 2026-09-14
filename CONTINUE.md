@@ -1,6 +1,6 @@
 # TC-workflow 续跑状态
 
-- 更新时间：2026-09-13（Asia/Shanghai）
+- 更新时间：2026-09-14（Asia/Shanghai）
 - 分支：`codex/tiger-workbench-integration-v1`
 - 当前阶段：M0—M6 可执行项完成；M7 按老板确认改为 NAS＋Cloudflare Tunnel/Access，R2 不启用；M4 真人回传约定周一由剪辑师完成
 - 上游基线：`356f6bb059889ca9314ea54cee098364dbea3b02`
@@ -8,7 +8,7 @@
 - 外联来源：ebcd960，业务规则已读取，待迁入共享 D1
 - 生产源：本机 `ai-media-tools` / `library.sqlite` / NAS，禁止新建第二套
 - 内容入口（现有局域网）：`http://video-factory.local:8787/workbench/`
-- 统一入口：`https://workbench.tigersourcingchina.com/workbench/` 的 Tunnel 与 DNS 已创建、ingress 已校验；因账户尚未启用 Access，Tunnel 保持停止，公网入口尚未开放
+- 统一入口：`https://workbench.tigersourcingchina.com/workbench/` 的 Tunnel 与 DNS 已创建、ingress 已校验；Zero Trust 组织已启用，但应用和三人策略尚未创建，Tunnel 保持停止，公网入口尚未开放
 
 ## 已确认
 
@@ -34,7 +34,7 @@
 
 1. 周一由真实剪辑师在现有局域网页领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
 2. 首周 r2 与历史版本已非删除式同步到现有 NAS 交付目录，8787 服务存储根已切到 NAS 并通过实际字节核对；Cloudflare Tunnel `tiger-workbench`、统一域名 DNS 和本机 ingress 已创建并校验通过。
-3. Cloudflare API 当前返回 `Access is not enabled`，现有 Wrangler OAuth 令牌又缺少 Access 写权限。Chrome 已打开最小权限自定义 API 令牌表单；第三名测试成员已核对为私有花名册中的既有剪辑师身份，无需新增人员。生成仅含 Access 两项写权限的临时令牌后，由 Codex 创建三人白名单、启动 Tunnel 并完成三人跨设备下载/回传测试；通过前不邀请其他人。R2 不启用、不上传。
+3. Zero Trust 组织 `tiger-workbench.cloudflareaccess.com` 已由老板在控制台启用；现有 Wrangler OAuth 令牌缺少 Access 写权限。第三名测试成员已核对为私有花名册中的既有剪辑师身份，无需新增人员。刷新自定义令牌表单并生成仅含 Access 两项写权限的临时令牌后，由 Codex 创建三人白名单、启动 Tunnel 并完成三人跨设备下载/回传测试；通过前不邀请其他人。R2 不启用、不上传。
 4. 远程两轮通过后切统一域名；旧入口先只读观察，不能删除。
 
 ## 禁止
