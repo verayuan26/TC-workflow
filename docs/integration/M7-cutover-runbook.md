@@ -2,7 +2,7 @@
 
 当前结论（2026-09-13）：老板确认所有素材、剪辑包和真人回传只存现有 NAS，R2 不启用。外网使用 Cloudflare Tunnel 把统一域名转到原 8787 生产服务，Cloudflare Access 只负责登录保护；不建立第二套文件库或渲染系统。
 
-当前执行状态（2026-09-14）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并校验通过；Zero Trust 组织 `tiger-workbench.cloudflareaccess.com` 已在控制台启用。现有 Wrangler OAuth 令牌没有 Access 写权限，所以 Tunnel 继续保持停止，尚未形成无保护公网入口。第三名测试成员已核对为私有花名册中的既有剪辑师身份。刷新自定义令牌表单并生成只申请 Access 组织/身份/组写入与应用/策略写入的临时令牌后继续 API 配置。
+当前执行状态（2026-09-14）：Cloudflare Tunnel `tiger-workbench`、`workbench.tigersourcingchina.com` DNS 和指向 `http://127.0.0.1:8787` 的 ingress 已创建并投入运行；Zero Trust 组织、Self-hosted Access 应用、仅限老板/阿旺/张永琪（Age）的邮箱白名单及 One-time PIN 登录均已启用。公网未登录访问返回 Access 302 登录页，局域网源站返回 200；文件仍只在现有 NAS。三人跨设备登录、下载和真人回传两轮证据待补，通过前不邀请其他人。
 
 ## 切换前门槛
 
@@ -13,7 +13,16 @@
 5. 不上传 R2。核对 NAS 中 4 个 r2 ZIP、12 项任务资料、8 个内容记录 / 剪辑师只见 4 个 r2 / 41 slots / 3 位试用成员。
 6. 用三名指定测试成员的真实身份各登录一次；验证默认入口、数据范围、下载和 403。
 7. 指定剪辑师跑一条真实 claim→下载→handback；原生产端 ACK 后 Codex QA，确认 HUMAN revision 被保护。
-8. 三人两轮远程测试通过后才切统一域名；旧 8787/旧页面先改只读观察，不删除。测试完成并得到老板确认后再邀请其他员工。
+8. 统一域名当前只对三人试运行；三人两轮远程测试通过后才标记正式切换。旧 8787/旧页面至少保留一个观察周期，不删除；测试完成并得到老板确认后再邀请其他员工。
+
+## 当前运行配置
+
+- 统一入口：`https://workbench.tigersourcingchina.com/workbench/`
+- Tunnel：`tiger-workbench`（`18b2be19-2ca9-4c94-be35-d95415675aa7`）
+- 本机配置：`/Users/mac/.cloudflared/config.yml`
+- 后台服务：`/Users/mac/Library/LaunchAgents/com.tiger.workbench.cloudflared.plist`
+- 日志：`/Users/mac/.cloudflared/tiger-workbench.log`
+- 恢复检查：`launchctl print gui/$(id -u)/com.tiger.workbench.cloudflared` 与 `cloudflared tunnel info tiger-workbench`
 
 ## 恢复
 

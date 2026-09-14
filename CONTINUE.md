@@ -2,13 +2,14 @@
 
 - 更新时间：2026-09-14（Asia/Shanghai）
 - 分支：`codex/tiger-workbench-integration-v1`
-- 当前阶段：M0—M6 可执行项完成；M7 按老板确认改为 NAS＋Cloudflare Tunnel/Access，R2 不启用；M4 真人回传约定周一由剪辑师完成
+- 当前阶段：M0—M6 可执行项完成；M7 的 NAS＋Cloudflare Tunnel/Access 已上线并完成未登录拦截，三人跨设备登录/回传证据待补；R2 不启用；M4 真人回传约定周一由剪辑师完成
 - 上游基线：`356f6bb059889ca9314ea54cee098364dbea3b02`
 - 内容来源：d940fe0 对应增量，9 个文件哈希一致
 - 外联来源：ebcd960，业务规则已读取，待迁入共享 D1
 - 生产源：本机 `ai-media-tools` / `library.sqlite` / NAS，禁止新建第二套
-- 内容入口（现有局域网）：`http://video-factory.local:8787/workbench/`
-- 统一入口：`https://workbench.tigersourcingchina.com/workbench/` 的 Tunnel 与 DNS 已创建、ingress 已校验；Zero Trust 组织已启用，但应用和三人策略尚未创建，Tunnel 保持停止，公网入口尚未开放
+- 统一入口（已上线）：`https://workbench.tigersourcingchina.com/workbench/`
+- 局域网恢复入口：`http://video-factory.local:8787/workbench/`
+- Cloudflare Access 应用、三人邮箱白名单与 One-time PIN 登录已启用；未登录公网访问已验证返回 Access 登录页，不直通 8787/NAS
 
 ## 已确认
 
@@ -29,13 +30,15 @@
 - 第一周 10 槽发布包已生成，状态 `PREPARED_NOT_SCHEDULED`。
 - 两轮本地联测、生产 workbench 测试、类型、lint、build 和 0 漏洞扫描通过。
 - GitHub 分支 `codex/tiger-workbench-integration-v1` 已经由 SSH 推送；真实 D1 `tiger-unified-workbench` 已创建并完成 0001—0003 迁移。
+- Cloudflare Tunnel 已由独立 LaunchAgent `com.tiger.workbench.cloudflared` 持续运行；统一域名 DNS 生效，公网未登录 302 拦截、局域网源站 200 均已实测。
+- Access Self-hosted 应用只允许老板、阿旺和张永琪（Age）三名既有私有身份；One-time PIN 邮箱验证码已添加，没有邀请其他员工。
 
 ## 下一步
 
-1. 周一由真实剪辑师在现有局域网页领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
+1. 周一由真实剪辑师从统一入口领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
 2. 首周 r2 与历史版本已非删除式同步到现有 NAS 交付目录，8787 服务存储根已切到 NAS 并通过实际字节核对；Cloudflare Tunnel `tiger-workbench`、统一域名 DNS 和本机 ingress 已创建并校验通过。
-3. Zero Trust 组织 `tiger-workbench.cloudflareaccess.com` 已由老板在控制台启用；现有 Wrangler OAuth 令牌缺少 Access 写权限。第三名测试成员已核对为私有花名册中的既有剪辑师身份，无需新增人员。刷新自定义令牌表单并生成仅含 Access 两项写权限的临时令牌后，由 Codex 创建三人白名单、启动 Tunnel 并完成三人跨设备下载/回传测试；通过前不邀请其他人。R2 不启用、不上传。
-4. 远程两轮通过后切统一域名；旧入口先只读观察，不能删除。
+3. Zero Trust 组织、Access 应用、三人白名单、邮箱验证码和 Tunnel 已完成。下一步只让老板、阿旺、张永琪在各自设备登录，完成下载/回传两轮实测；通过前不邀请其他人。临时 API 令牌完成配置后不再使用，最迟随 7 天 TTL 自动失效；R2 不启用、不上传。
+4. 统一域名当前只作为三人试运行入口；远程两轮通过后再标记为正式切换，旧入口至少保留一个观察周期，不能删除。
 
 ## 禁止
 
