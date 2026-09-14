@@ -2,7 +2,7 @@
 
 - 更新时间：2026-09-14（Asia/Shanghai）
 - 分支：`codex/tiger-workbench-integration-v1`
-- 当前阶段：Outreach O0—O3 技术项完成；O4 已按老板授权把 8 家统一分配给 ALAN，并同步最终业务团队花名册；等待 Cloudflare Access 放行及业务员本人登录/回传验收；内容模块 M0—M6 可执行项完成，M7 的三人跨设备回传证据仍待补
+- 当前阶段：Outreach O0—O3 技术项完成；O4 已按老板授权把 8 家统一分配给 ALAN、同步最终业务团队花名册并完成 Cloudflare Access 放行；等待业务员本人登录/回传验收；内容模块 M0—M6 可执行项完成，M7 的三人跨设备回传证据仍待补
 - 上游基线：`356f6bb059889ca9314ea54cee098364dbea3b02`
 - 内容来源：d940fe0 对应增量，9 个文件哈希一致
 - 外联来源：ebcd960，业务规则已迁入共享 D1；本次部署代码见 `cb1f6c0`
@@ -10,7 +10,7 @@
 - 统一入口（已上线）：`https://workbench.tigersourcingchina.com/workbench/`
 - 客户开发入口（已上线）：`https://workbench.tigersourcingchina.com/outreach`
 - 局域网恢复入口：`http://video-factory.local:8787/workbench/`
-- Cloudflare Access 应用、三人邮箱白名单与 One-time PIN 登录已启用；未登录公网访问已验证返回 Access 登录页，不直通 8787/NAS
+- Cloudflare Access 应用、七人邮箱白名单与 One-time PIN 登录已启用；未登录公网访问已验证返回 Access 登录页，不直通 8787/NAS
 
 ## Outreach O0—O4（2026-09-14）
 
@@ -23,7 +23,8 @@
 - 入口证据：公网 `/outreach`、`/workbench/`、`/legacy`、附件均由 Access 返回 302；服务域无令牌 401，非 Outreach 路径 404，伪造邮箱头仍被 Access 拦截；生产 API 以服务身份返回 8 客户/8 任务。
 - 恢复点：`/Users/mac/Library/Application Support/TigerOutreach/backups/predeploy-20260914/`。Tunnel 配置、旧内容服务和 D1 导出均已保留。
 - 最终业务团队口径：ALAN 为业务主管；阿旺、瑛瑞、Henry、张创治为业务员。5 人在真实成员表均为 `active`、系统角色 `sales`、权限为 `overview:read/outreach:read/outreach:write`；私有花名册以 `job_title` 区分主管与业务员。生产 D1 审计已记录职位同步及 ALAN 的 8 家分配。
-- 唯一下一步：把 ALAN、瑛瑞、Henry、张创治加入现有 Cloudflare Access 策略（阿旺已在白名单）；随后分别完成本人登录、只见本人任务和内部演练回传。当前浏览器控制对 Cloudflare 表单输入持续超时、Wrangler OAuth 又不含 Access 写权限，故策略尚未保存；完成前不得写成“业务员本人已能使用”。
+- Access 已保存并复核：`Allow Tiger pilot testers` 保留老板、阿旺、Age，新增 ALAN、瑛瑞、Henry、张创治，共 7 个唯一邮箱标签；公网 `/outreach`、`/workbench/`、`/legacy` 仍全部 302 到 Access 登录域。
+- 唯一下一步：由 ALAN、阿旺、瑛瑞、Henry、张创治分别完成本人 One-time PIN 登录，验证只见本人任务并提交一轮内部演练回传；完成前不得写成“业务员本人已能使用”。
 - 详细验收：`docs/integration/OUTREACH_O0_O4_20260914.md`。
 
 ## 已确认
@@ -46,13 +47,13 @@
 - 两轮本地联测、生产 workbench 测试、类型、lint、build 和 0 漏洞扫描通过。
 - GitHub 分支 `codex/tiger-workbench-integration-v1` 已经由 SSH 推送；真实 D1 `tiger-unified-workbench` 已创建并完成 0001—0003 迁移。
 - Cloudflare Tunnel 已由独立 LaunchAgent `com.tiger.workbench.cloudflared` 持续运行；统一域名 DNS 生效，公网未登录 302 拦截、局域网源站 200 均已实测。
-- Access Self-hosted 应用只允许老板、阿旺和张永琪（Age）三名既有私有身份；One-time PIN 邮箱验证码已添加，没有邀请其他员工。
+- Access Self-hosted 应用已保留老板、阿旺和张永琪（Age），并按老板授权新增 ALAN、瑛瑞、Henry、张创治；共 7 名私有身份，One-time PIN 邮箱验证码保持启用。
 
 ## 下一步
 
 1. 周一由真实剪辑师从统一入口领取一条 r2，修改并回传 MP4+工程；Codex QA 并保护 HUMAN revision。
 2. 首周 r2 与历史版本已非删除式同步到现有 NAS 交付目录，8787 服务存储根已切到 NAS 并通过实际字节核对；Cloudflare Tunnel `tiger-workbench`、统一域名 DNS 和本机 ingress 已创建并校验通过。
-3. Zero Trust 组织、Access 应用、三人白名单、邮箱验证码和 Tunnel 已完成。下一步只让老板、阿旺、张永琪在各自设备登录，完成下载/回传两轮实测；通过前不邀请其他人。临时 API 令牌完成配置后不再使用，最迟随 7 天 TTL 自动失效；R2 不启用、不上传。
+3. Zero Trust 组织、Access 应用、七人白名单、邮箱验证码和 Tunnel 已完成。内容流仍由老板、阿旺、张永琪完成下载/回传两轮实测；业务流由 ALAN、阿旺、瑛瑞、Henry、张创治分别验证本人任务可见性与回传。R2 不启用、不上传。
 4. 统一域名当前只作为三人试运行入口；远程两轮通过后再标记为正式切换，旧入口至少保留一个观察周期，不能删除。
 
 ## 禁止
