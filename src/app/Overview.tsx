@@ -8,14 +8,12 @@ import {
 } from "lucide-react";
 import type { Viewer } from "./AppShell";
 import type { Snapshot } from "../workbench/domain";
-import type { OutreachSnapshot } from "../outreach/api";
 
 type OverviewData = {
   content: { available: boolean; snapshot?: Snapshot };
   outreach: {
     available: boolean;
-    revision?: number;
-    lab?: OutreachSnapshot["lab"];
+    stats?: {total:number;unassigned:number;attempted:number;connected:number;needs_details:number;evaluable:number};
   };
   decisions: { id: string; module: string; title: string; reason: string }[];
 };
@@ -34,7 +32,7 @@ export function Overview({ viewer }: { viewer: Viewer | null }) {
       );
   }, []);
   const c = data?.content.snapshot;
-  const lab = data?.outreach.lab;
+  const stats = data?.outreach.stats;
   return (
     <section className="tc-page">
       <p className="tc-kicker">RESULTS / 结果总览</p>
@@ -71,9 +69,9 @@ export function Overview({ viewer }: { viewer: Viewer | null }) {
           <Target />
           <span>有效客户需求</span>
           <b>
-            {lab ? lab.leads.filter((l) => l.milestones.qualified).length : "—"}
+            {stats ? stats.evaluable : "—"}
           </b>
-          <small>{lab ? "资料门槛已满足" : "外联 D1 未连接"}</small>
+          <small>{stats ? `需求待补充 ${stats.needs_details}` : "外联 D1 未连接"}</small>
         </article>
         <article>
           <AlertTriangle />
@@ -101,23 +99,19 @@ export function Overview({ viewer }: { viewer: Viewer | null }) {
           ) : (
             <p>尚无生产快照。现有 8787 生产端需通过适配器写入投影。</p>
           )}
-          <a href="/content">
+          <a href="/workbench/">
             进入内容工作台 <ArrowRight size={15} />
           </a>
         </article>
         <article className="tc-summary">
           <h2>客户开发</h2>
-          {lab ? (
+          {stats ? (
             <>
               <p>
-                <b>{lab.leads.length}</b> 家候选企业，
-                <b>{lab.tasks.filter((t) => t.status !== "accepted").length}</b>{" "}
-                条未验收任务。
+                <b>{stats.total}</b> 家候选企业，<b>{stats.unassigned}</b> 家待分配。
               </p>
               <p>
-                {lab.config.status === "active"
-                  ? `试验从 ${lab.config.startDate} 开始`
-                  : "试验尚未由老板确认启动"}
+                已尝试联系 {stats.attempted} 家；有效联系 {stats.connected} 家。导入本身不计作联系。
               </p>
             </>
           ) : (

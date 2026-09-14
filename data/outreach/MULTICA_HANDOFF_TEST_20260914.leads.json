@@ -1,0 +1,20 @@
+[
+  {
+    "item_ref":"TEST-001",
+    "company_name":"MULTICA-OUTREACH-SYNTHETIC-DO-NOT-CONTACT",
+    "city":"测试城市",
+    "website":"https://example.invalid/",
+    "email":"nobody@example.invalid",
+    "contact_role":"合成测试角色",
+    "contact_role_status":"unknown",
+    "fit_reason":"仅用于验证 Multica 到 Outreach 的真实入库回执，不是业务线索。",
+    "suggested_entry":"不得联系；只验证导入、去重、回执和测试隔离。",
+    "source_url":"https://example.invalid/multica-handoff-test",
+    "source_type":"synthetic_test",
+    "observed_at":"2026-09-14",
+    "evidence_limit":"合成测试数据；不得计入业务指标、分配或联系。",
+    "russian_draft":"СИНТЕТИЧЕСКИЙ ТЕСТ. НЕ ОТПРАВЛЯТЬ.",
+    "chinese_translation":"合成测试，不得发送。",
+    "delivery_requirements":"无；不得分配或联系。"
+  }
+]

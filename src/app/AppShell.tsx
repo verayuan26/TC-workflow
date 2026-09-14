@@ -118,7 +118,7 @@ export function AppShell() {
               <button
                 key={item}
                 className={route === item ? "active" : ""}
-                onClick={() => navigate(item)}
+                onClick={() => item === "/content" ? window.location.assign("/workbench/") : navigate(item)}
               >
                 <Icon size={17} />
                 {labels[item][0]}

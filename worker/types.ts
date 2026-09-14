@@ -6,6 +6,7 @@ export interface Env {
   CF_ACCESS_AUD: string;
   ALLOW_DEV_AUTH?: string;
   DEV_PERSON_EMAIL?: string;
+  OUTREACH_FILE_SIGNING_SECRET?: string;
 }
 export type Member = {
   person_id: string;

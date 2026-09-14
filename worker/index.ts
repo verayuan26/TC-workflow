@@ -1,7 +1,6 @@
-import { applyOutreachAction, ActionError } from "../src/outreach/engine";
-import { initialLab, type OutreachLab } from "../src/outreach/model";
 import { authenticate, HttpError, requirePermission, sha256 } from "./auth";
 import type { AuthActor, Env } from "./types";
+import { handleOutreach } from "./outreach";
 
 const json = (value: unknown, status = 200, headers: HeadersInit = {}) =>
   new Response(JSON.stringify(value), {
@@ -61,35 +60,6 @@ async function audit(
     )
     .run();
 }
-async function outreachRow(env: Env, actor: AuthActor) {
-  let row = await env.DB.prepare(
-    "SELECT data,revision FROM outreach_workspaces WHERE id=?",
-  )
-    .bind("primary")
-    .first<{ data: string; revision: number }>();
-  if (!row && actor.role === "boss") {
-    const now = new Date().toISOString();
-    const lab = initialLab(now);
-    await env.DB.prepare(
-      "INSERT INTO outreach_workspaces(id,owner_person_id,data,revision,created_at,updated_at) VALUES(?,?,?,?,?,?)",
-    )
-      .bind("primary", actor.id, JSON.stringify(lab), 1, now, now)
-      .run();
-    row = { data: JSON.stringify(lab), revision: 1 };
-  }
-  if (!row) throw new HttpError("外联工作区尚未由老板初始化", 404);
-  return { lab: JSON.parse(row.data) as OutreachLab, revision: row.revision };
-}
-function actorForOutreach(actor: AuthActor) {
-  if (!["boss", "sales", "codex"].includes(actor.role))
-    throw new HttpError("当前角色不能操作客户开发", 403);
-  return {
-    id: actor.id,
-    email: actor.email,
-    name: actor.name,
-    role: actor.role as "boss" | "sales" | "codex",
-  };
-}
 async function me(request: Request, env: Env) {
   const actor = await authenticate(request, env);
   return json({
@@ -98,49 +68,6 @@ async function me(request: Request, env: Env) {
     name: actor.name,
     role: actor.role,
     permissions: actor.permissions,
-  });
-}
-async function outreach(request: Request, env: Env) {
-  const actor = await authenticate(request, env);
-  requirePermission(actor, "outreach:read");
-  if (request.method === "GET") {
-    const state = await outreachRow(env, actor);
-    return json(state, 200, { etag: `"${state.revision}"` });
-  }
-  const expected = Number(request.headers.get("if-match"));
-  if (!Number.isInteger(expected))
-    throw new HttpError("缺少有效 If-Match 版本", 428);
-  const current = await outreachRow(env, actor);
-  if (current.revision !== expected)
-    throw new HttpError("共享状态已有更新，请刷新后重试", 409);
-  const payload = await body(request);
-  let result;
-  try {
-    result = applyOutreachAction(current.lab, actorForOutreach(actor), payload);
-  } catch (error) {
-    if (error instanceof ActionError)
-      throw new HttpError(error.message, error.status);
-    throw error;
-  }
-  const now = new Date().toISOString();
-  const update = await env.DB.prepare(
-    "UPDATE outreach_workspaces SET data=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?",
-  )
-    .bind(JSON.stringify(result.lab), now, "primary", expected)
-    .run();
-  if (!update.meta.changes)
-    throw new HttpError("共享状态已有更新，请刷新后重试", 409);
-  await audit(
-    env,
-    actor,
-    String(payload.action || "outreach.action"),
-    "outreach:primary",
-    "accepted",
-  );
-  return json({
-    message: result.message,
-    revision: expected + 1,
-    lab: result.lab,
   });
 }
 async function projection(env: Env) {
@@ -572,12 +499,13 @@ async function upload(
 async function overview(request: Request, env: Env) {
   const actor = await authenticate(request, env);
   let content:null|Record<string,unknown>=null;try{content=await projectionForActor(env,actor)}catch{/* module not granted */}
-  let outreachState: null | { lab: OutreachLab; revision: number } = null;
-  try {
-    outreachState = await outreachRow(env, actor);
-  } catch {
-    /* intentionally unavailable */
-  }
+  let outreachStats: Record<string,unknown>|null=null;
+  try{
+    requirePermission(actor,"outreach:read");
+    const where=actor.role==="boss"||actor.role==="codex"?"is_test=0":"is_test=0 AND owner_person_id=?";
+    const query=env.DB.prepare(`SELECT COUNT(*) AS total,SUM(CASE WHEN owner_person_id IS NULL THEN 1 ELSE 0 END) AS unassigned,SUM(CASE WHEN progress_status!='uncontacted' THEN 1 ELSE 0 END) AS attempted,SUM(CASE WHEN progress_status IN ('connected','needs_details','evaluable') THEN 1 ELSE 0 END) AS connected,SUM(CASE WHEN progress_status='needs_details' THEN 1 ELSE 0 END) AS needs_details,SUM(CASE WHEN progress_status='evaluable' THEN 1 ELSE 0 END) AS evaluable FROM outreach_leads WHERE ${where}`);
+    outreachStats=await (actor.role==="boss"||actor.role==="codex"?query:query.bind(actor.id)).first<Record<string,unknown>>();
+  }catch{/* module not granted */}
   const decisions: Array<{
     id: unknown;
     module: string;
@@ -594,22 +522,12 @@ async function overview(request: Request, env: Env) {
           reason: task.reason,
         });
   }
-  if (outreachState)
-    for (const issue of outreachState.lab.issues.filter(
-      (i) => i.owner === "boss" && i.status !== "resolved",
-    ))
-      decisions.push({
-        id: issue.id,
-        module: "客户开发",
-        title: issue.title,
-        reason: issue.category,
-      });
+  if(outreachStats&&Number(outreachStats.unassigned)>0&&actor.role==="boss")decisions.push({id:"outreach-unassigned",module:"客户开发",title:`${outreachStats.unassigned} 家线索待分配`,reason:"尚无获授权业务员分配规则"});
   return json({
     content: { available: !!content, snapshot: content },
     outreach: {
-      available: !!outreachState,
-      revision: outreachState?.revision,
-      lab: outreachState?.lab,
+      available: !!outreachStats,
+      stats: outreachStats,
     },
     decisions,
   });
@@ -742,6 +660,9 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
     try {
+      const serviceOrigin = url.hostname.endsWith(".workers.dev") || url.hostname === "outreach-ingest.tigersourcingchina.com";
+      if (serviceOrigin && !path.startsWith("/api/outreach"))
+        throw new HttpError("服务源站不提供页面或其他接口", 404);
       if (path === "/api/me" && request.method === "GET")
         return await me(request, env);
       if (
@@ -755,10 +676,11 @@ export default {
       }
       if (path === "/api/overview" && request.method === "GET")
         return await overview(request, env);
-      if (path === "/api/outreach" && request.method === "GET")
-        return await outreach(request, env);
-      if (path === "/api/outreach/actions" && request.method === "POST")
-        return await outreach(request, env);
+      if (path.startsWith("/api/outreach")) {
+        const allowService = serviceOrigin || path.startsWith("/api/outreach/import") || path.startsWith("/api/outreach/review");
+        const actor = await authenticate(request, env, allowService);
+        return await handleOutreach(request, env, actor, path);
+      }
       if (path === "/api/content/projection" && request.method === "GET") {
         const actor=await authenticate(request, env);
         const value = await projectionForActor(env,actor);

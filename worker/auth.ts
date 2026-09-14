@@ -69,11 +69,7 @@ export async function authenticate(
     const service = await serviceActor(request, env);
     if (service) return service;
   }
-  const url = new URL(request.url);
-  if (
-    env.ALLOW_DEV_AUTH === "true" &&
-    ["localhost", "127.0.0.1"].includes(url.hostname)
-  ) {
+  if (env.ALLOW_DEV_AUTH === "true") {
     const email =
       request.headers.get("x-tiger-dev-email") || env.DEV_PERSON_EMAIL || "";
     if (emailPattern.test(email)) return memberByEmail(env, email);

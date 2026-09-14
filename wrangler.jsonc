@@ -3,8 +3,21 @@
   "name": "tiger-unified-workbench",
   "main": "worker/index.ts",
   "compatibility_date": "2026-09-01",
-  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application" },
+  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": true },
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "workbench.tigersourcingchina.com/outreach*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/overview*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/settings*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/legacy*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/assets/*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/api/me*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/api/overview*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/api/outreach*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "workbench.tigersourcingchina.com/api/admin*", "zone_name": "tigersourcingchina.com" },
+    { "pattern": "outreach-ingest.tigersourcingchina.com", "custom_domain": true }
+  ],
   "d1_databases": [{ "binding": "DB", "database_name": "tiger-unified-workbench", "database_id": "f6bf2bbf-68d7-49c7-b5ec-76fc7e85e548", "migrations_dir": "worker/migrations" }],
   // Production binary files stay on the existing NAS and are served by the 8787 origin through Access + Tunnel.
-  "vars": { "CF_ACCESS_TEAM_DOMAIN": "", "CF_ACCESS_AUD": "", "ALLOW_DEV_AUTH": "false", "DEV_PERSON_EMAIL": "" }
+  "vars": { "CF_ACCESS_TEAM_DOMAIN": "tiger-workbench.cloudflareaccess.com", "CF_ACCESS_AUD": "bc6e4acae9eda200cfbe1d6bc229ec45b7f5c8eef163943257eb57666c2950ad", "ALLOW_DEV_AUTH": "false", "DEV_PERSON_EMAIL": "" }
 }

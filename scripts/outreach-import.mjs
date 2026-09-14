@@ -1,0 +1,13 @@
+import {createHash} from "node:crypto";
+import {readFile} from "node:fs/promises";
+const file=process.argv[2];
+if(!file)throw new Error("usage: node scripts/outreach-import.mjs <leads.json> [--dry-run]");
+const endpoint=process.env.TIGER_OUTREACH_ENDPOINT||"https://workbench.tigersourcingchina.com";
+const token=process.env.TIGER_OUTREACH_SERVICE_TOKEN;
+if(!token)throw new Error("TIGER_OUTREACH_SERVICE_TOKEN is required");
+const raw=await readFile(file);const leads=JSON.parse(raw.toString("utf8"));
+const batchId=process.env.TIGER_OUTREACH_BATCH_ID||"RU_INITIAL8_20260912";const artifactVersion=process.env.TIGER_OUTREACH_ARTIFACT_VERSION||`${batchId}/v1`;
+const payload={batch_id:batchId,idempotency_key:`tiger-outreach:${batchId}:${artifactVersion}`,source_system:"multica",source_task_id:process.env.MULTICA_SOURCE_TASK_ID||"manual-bootstrap",source_run_id:process.env.MULTICA_SOURCE_RUN_ID||"manual-bootstrap",artifact_version:artifactVersion,artifact_url:`file://${file}`,artifact_sha256:createHash("sha256").update(raw).digest("hex"),program_revision:Number(process.env.TIGER_OUTREACH_PROGRAM_REVISION||1),is_test:process.env.TIGER_OUTREACH_IS_TEST==="true",leads};
+const path=process.argv.includes("--dry-run")?"/api/outreach/import/dry-run":"/api/outreach/import";
+const response=await fetch(endpoint+path,{method:"POST",headers:{authorization:`Bearer ${token}`,"content-type":"application/json"},body:JSON.stringify(payload)});
+const body=await response.text();console.log(body);if(!response.ok)process.exit(1);
